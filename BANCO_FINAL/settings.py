@@ -87,8 +87,12 @@ WSGI_APPLICATION = 'BANCO_FINAL.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'gestion_bancaria',
+        'USER': 'superbanco',
+        'PASSWORD': '445566',
+        'HOST': 'localhost',  # O la dirección de tu servidor PostgreSQL
+        'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
 }
 
