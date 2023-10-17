@@ -8,6 +8,7 @@ class Ciudad(models.Model):
         ('Azote\'y', 'Azote\'y'),
         
     ))
+    
     departamento = models.CharField(choices=(
             ('Alto Paraguay', 'Alto Paraguay'),
             ('Alto Paraná', 'Alto Paraná'),
