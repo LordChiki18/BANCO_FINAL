@@ -6,3 +6,4 @@ urlpatterns = [
     path('',TemplateView.as_view(template_name='index.html'))
     #path('api/', include('aplicaciones.cuentas.urls')),
 ]
+
