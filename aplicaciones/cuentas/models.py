@@ -223,7 +223,7 @@ class Cuentas(models.Model):
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
     costo_mantenimiento = models.DecimalField(max_digits=10, decimal_places=2)
     promedio_acreditacion = models.DecimalField(max_digits=10, decimal_places=2)
-    moneda = models.CharField(choices=(
+    moneda = models.CharField(choices=( 
         ('Guaraní', 'Guaraní'),
         ('Dolares_Americanos', 'Dolares_Americanos'),
     ))
