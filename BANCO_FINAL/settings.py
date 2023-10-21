@@ -55,9 +55,9 @@ ROOT_URLCONF = 'BANCO_FINAL.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR,'my-react/build')
-        ]
+        'DIRS': [BASE_DIR / 'templates'
+                 # os.path.join(BASE_DIR,'my-react/build')
+                 ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -80,8 +80,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'gestion_bancaria',
-        'USER': 'superbanco',
-        'PASSWORD': '445566',
+        'USER': 'postgres',
+        'PASSWORD': '123456',
         'HOST': 'localhost',  # O la dirección de tu servidor PostgreSQL
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
@@ -121,12 +121,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'my-react/build/static')
-]
+# STATICFILES_DIRS = [
+# os.path.join(BASE_DIR, 'my-react/build/static')
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
- 
