@@ -12,6 +12,10 @@ from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas
 
 # Create your views here.
 
+def index(request):
+    return render(request, 'index.html')
+
+
 class CiudadViews(viewsets.ModelViewSet):
     queryset = Ciudad.objects.all()
     serializer_class = CiudadSerializer
