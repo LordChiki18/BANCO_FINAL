@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #003366;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        header img {
+            width: 40px;
+        }
+        header h1 {
+            margin: 0;
+        }
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        nav select {
+            background-color: #003366;
+            color: white;
+            border: none;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+        }
+        nav a:hover {
+            border: 1px solid green;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        #green-button {
+            background-color: green;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        #green-button:hover {
+            border: 1px solid green;
+        }
+        #carousel {
+            text-align: center;
+        }
+        #footer {
+            background-color: #003366;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        #footer a {
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <img src="tu-logo.png" alt="Banco DOCAP">
+            <h1>Banco DOCAP</h1>
+        </div>
+        <nav>
+            <select>
+                <option value="cuenta">Cuentas</option>
+                <option value="cuenta-corriente">Cuenta Corriente</option>
+                <option value="ahorro">Ahorro</option>
+            </select>
+            <a href="#">Tarjetas</a>
+            <a href="#">Sobre nosotros</a>
+            <a href="#">Contacto</a>
+        </nav>
+        <button id="green-button">Quiero ser Cliente</button>
+        <button id="green-button">E-Banking</button>
+    </header>
+    <div id="carousel">
+        <!-- Aquí puedes agregar tu carrusel de imágenes -->
+    </div>
+    <footer id="footer">
+        <div>
+            <a href="#">Términos</a>
+            <a href="#">Políticas</a>
+            <a href="#">Términos y condiciones</a>
+        </div>
+        <img src="tu-logo.png" alt="Banco DOCAP" style="width: 20px;">
+    </footer>
+</body>
+</html>

@@ -5,25 +5,20 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.views.generic import TemplateView
+
 
 class Protegida (APIView):
     permission_classes = [IsAuthenticated]
 
     def get (self, request):
         return Response({"content": "Esta vista está protegida"}, status=status.HTTP_200_OK)
-from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('aplicaciones.cuentas.urls')),
     #path('api/', include('aplicaciones.cuentas.urls')),
     path('api/token/',TokenObtainPairView.as_view(),name='token_obtain_pair'),
     path('api/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
     path('protegida/', Protegida.as_view(), name='protegida'),
-]
-from django.views.generic import TemplateView
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    # path('',TemplateView.as_view(template_name='index.html'))
-    path('api/', include('aplicaciones.cuentas.urls')),
 ]

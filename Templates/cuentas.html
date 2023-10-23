@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f1f1f1;
+        }
+        header {
+            background-color: #003366;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        header img {
+            width: 40px;
+        }
+        header h1 {
+            margin: 0;
+        }
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+        }
+        #user-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            border-bottom: 1px solid #ccc;
+        }
+        #user-info img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+        }
+        #user-info p {
+            margin-left: 20px;
+        }
+        #body-content {
+            padding: 20px;
+        }
+        .account-info {
+            background-color: white;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .account-info button {
+            background-color: transparent;
+            border: none;
+            color: #003366;
+            cursor: pointer;
+        }
+        #green-button {
+            background-color: green;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        #green-button:hover {
+            border: 1px solid green;
+        }
+        footer {
+            background-color: #003366;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        footer a {
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .hidden-balance {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <img src="tu-logo.png" alt="Banco DOCAP">
+            <h1>Banco DOCAP</h1>
+        </div>
+        <nav>
+            <a href="#">Tus Cuentas</a>
+            <a href="#">Transferencias</a>
+            <a href="#">Movimientos</a>
+            <a href="#">Tarjetas</a>
+            <a href="#">Informes</a>
+            <a href="#">Solicitudes</a>
+        </nav>
+    </header>
+    <div id="body-content">
+        <div id="user-info">
+            <img src="tu-foto-de-usuario.jpg" alt="Usuario">
+            <p>¡Hola, <nombre_de_usuario>!</p>
+            <p>¿Cómo puedo ayudarte hoy?</p>
+        </div>
+        <div class="account-info">
+            <p><strong>Tipo de Cuenta:</strong> Cuenta de Ahorro</p>
+            <p><strong>Número de Cuenta:</strong> 1234567890</p>
+            <p><strong>Saldo:</strong> <span class="visible-balance">1000.00 USD</span><span class="hidden-balance">*************</span></p>
+            <button class="toggle-balance">Mostrar Saldo</button>
+        </div>
+        <div class="account-info">
+            <p><strong>Tipo de Cuenta:</strong> Cuenta Corriente</p>
+            <p><strong>Número de Cuenta:</strong> 9876543210</p>
+            <p><strong>Saldo:</strong> <span class="visible-balance">2500.00 USD</span><span class="hidden-balance">*************</span></p>
+            <button class="toggle-balance">Mostrar Saldo</button>
+        </div>
+    </div>
+    <footer>
+        <a href="#">Términos</a>
+        <a href="#">Políticas</a>
+        <a href="#">Términos y condiciones</a>
+        <img src="tu-logo.png" alt="Banco DOCAP" style="width: 20px;">
+    </footer>
+    <script>
+        // JavaScript para mostrar/ocultar saldos al hacer clic en el botón
+        const toggleButtons = document.querySelectorAll('.toggle-balance');
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const balance = button.parentElement.querySelector('.visible-balance');
+                const hiddenBalance = button.parentElement.querySelector('.hidden-balance');
+                balance.classList.toggle('hidden-balance');
+                hiddenBalance.classList.toggle('hidden-balance');
+            });
+        });
+    </script>
+</body>
+</html>
