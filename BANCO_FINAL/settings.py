@@ -122,7 +122,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'gestion_bancaria',
         'USER': 'postgres',
-        'PASSWORD': '123456',
+        'PASSWORD': 'admin',
         'HOST': 'localhost',  # O la dirección de tu servidor PostgreSQL
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
@@ -162,9 +162,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# STATICFILES_DIRS = [
-# os.path.join(BASE_DIR, 'my-react/build/static')
-# ]
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    "/var/www/static/",
+]
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
