@@ -1,101 +1,68 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #003366;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-        }
-        header img {
-            width: 40px;
-        }
-        header h1 {
-            margin: 0;
-        }
-        nav {
-            display: flex;
-            gap: 20px;
-        }
-        nav select {
-            background-color: #003366;
-            color: white;
-            border: none;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-        }
-        nav a:hover {
-            border: 1px solid green;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-        #green-button {
-            background-color: green;
-            color: white;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-        }
-        #green-button:hover {
-            border: 1px solid green;
-        }
-        #carousel {
-            text-align: center;
-        }
-        #footer {
-            background-color: #003366;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-        }
-        #footer a {
-            color: white;
-            text-decoration: none;
-            margin-right: 10px;
-        }
-    </style>
-</head>
-<body>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
+    />
+    <title>Banco DOCAP</title>
+  </head>
+  <body>
     <header>
-        <div>
-            <img src="tu-logo.png" alt="Banco DOCAP">
-            <h1>Banco DOCAP</h1>
+      <nav class="sectionh__container navh__container">
+        <div class="nav__logo"><img src="{% static 'main/media/logo.jpeg' %}" alt="Logo"></div>
+        <div class="nav__logo">Banco DOCAP</div>
+        <ul class="nav__links">
+          <li class="link">
+            <a href="#">Cuentas</a>
+            <!--<select id="cuentas-dropdown" class="dropdown">
+                <option value="" disabled selected>Selecciona una cuenta</option>
+                <option value="cuenta1">Cuenta 1</option>
+                <option value="cuenta2">Cuenta 2</option>
+                <option value="cuenta3">Cuenta 3</option>
+               
+            </select>-->
+        </li>
+          <li class="link"><a href="#">Tarjetas</a></li>
+          <li class="link"><a href="#">Creditos</a></li>
+          <li class="link"><a href="#">Sobre Nosotros</a></li>
+          <li class="link"><a href="#">Contacto</a></li>
+        </ul>
+        <button class="btncli">Online Banking</button>
+        <button class="btn">Quiero ser Cliente</button>
+      </nav>
+      <div class="section__container header__container">
+        <div class="header__content">
+          <h1>Contigo en todo momento</h1>
+          <h1>Tu Banco a toda hora</h1>
+          <p>
+            Eu voluptate pariatur nostrud velit laborum excepteur fugiat aute. Officia reprehenderit dolore ipsum
+             elit incididunt eu minim nostrud eiusmod deserunt. Cupidatat reprehenderit incididunt eu duis voluptate sit. 
+             Dolore minim voluptate sit aliquip incididunt qui ex ipsum officia.
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit animi maiores doloribus nulla aliquam, 
+            voluptatum vero eius! Voluptatum dolor, doloribus a illum dignissimos cupiditate, ad quia corrupti quae molestias iure?
+          </p>
         </div>
-        <nav>
-            <select>
-                <option value="cuenta">Cuentas</option>
-                <option value="cuenta-corriente">Cuenta Corriente</option>
-                <option value="ahorro">Ahorro</option>
-            </select>
-            <a href="#">Tarjetas</a>
-            <a href="#">Sobre nosotros</a>
-            <a href="#">Contacto</a>
-        </nav>
-        <button id="green-button">Quiero ser Cliente</button>
-        <button id="green-button">E-Banking</button>
+      </div>
     </header>
-    <div id="carousel">
-        <!-- Aquí puedes agregar tu carrusel de imágenes -->
-    </div>
-    <footer id="footer">
-        <div>
-            <a href="#">Términos</a>
-            <a href="#">Políticas</a>
-            <a href="#">Términos y condiciones</a>
+
+    <footer class="footer">
+      <div class="footer__bar">
+        <div class="footer__bar__content">
+          <h3 style="color: white;">Contigo en todo momento</h3>
+          <div class="footer__socials">
+            <a href="#">Contacto</a>
+            <a href="#">Politica</a>
+            <a href="#">Terminos</a>
+          </div>
         </div>
-        <img src="tu-logo.png" alt="Banco DOCAP" style="width: 20px;">
+      </div>
     </footer>
-</body>
+  </body>
 </html>

@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from django.views.generic import TemplateView
 
 
+
 class Protegida (APIView):
     permission_classes = [IsAuthenticated]
 
