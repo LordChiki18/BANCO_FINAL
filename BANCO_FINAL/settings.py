@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # MY APPS
+    # MY APP
     'aplicaciones.cuentas',
     # THIRD PARTY APPS
     'rest_framework',
@@ -111,6 +111,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'BANCO_FINAL.wsgi.application'
 

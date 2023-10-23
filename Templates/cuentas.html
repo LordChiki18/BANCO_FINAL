@@ -6,10 +6,10 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f1f1f1;
+            background-color: #c3e6c3; /* Fondo verde claro */
         }
         header {
-            background-color: #003366;
+            background-color: #2e856e; /* Azul verdoso */
             color: white;
             display: flex;
             justify-content: space-between;
@@ -22,13 +22,28 @@
         header h1 {
             margin: 0;
         }
-        nav {
-            display: flex;
-            gap: 20px;
+        .menu-toggle {
+            display: none;
         }
-        nav a {
+        .menu-toggle:checked + .menu {
+            display: block;
+        }
+        .menu {
+            display: none;
+            background-color: #2e856e; /* Azul verdoso */
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            border: 1px solid #003366;
+            border-radius: 5px;
+            list-style: none;
+            padding: 10px;
+        }
+        .menu a {
             color: white;
             text-decoration: none;
+            display: block;
+            margin: 5px 0;
         }
         #user-info {
             display: flex;
@@ -57,21 +72,21 @@
         .account-info button {
             background-color: transparent;
             border: none;
-            color: #003366;
+            color: #2e856e; /* Azul verdoso */
             cursor: pointer;
         }
         #green-button {
-            background-color: green;
+            background-color: #5fbb6e; /* Verde claro */
             color: white;
             padding: 5px 10px;
             border: none;
             border-radius: 5px;
         }
         #green-button:hover {
-            border: 1px solid green;
+            border: 1px solid #5fbb6e; /* Verde claro */
         }
         footer {
-            background-color: #003366;
+            background-color: #2e856e; /* Azul verdoso */
             color: white;
             display: flex;
             justify-content: space-between;
@@ -90,18 +105,19 @@
 </head>
 <body>
     <header>
-        <div>
+        <input type="checkbox" class="menu-toggle" id="menu-toggle">
+        <label for="menu-toggle">
             <img src="tu-logo.png" alt="Banco DOCAP">
-            <h1>Banco DOCAP</h1>
-        </div>
-        <nav>
-            <a href="#">Tus Cuentas</a>
-            <a href="#">Transferencias</a>
-            <a href="#">Movimientos</a>
-            <a href="#">Tarjetas</a>
-            <a href="#">Informes</a>
-            <a href="#">Solicitudes</a>
-        </nav>
+        </label>
+        <h1>Banco DOCAP</h1>
+        <ul class="menu">
+            <li><a href="#">Tus Cuentas</a></li>
+            <li><a href="#">Transferencias</a></li>
+            <li><a href="#">Movimientos</a></li>
+            <li><a href="#">Tarjetas</a></li>
+            <li><a href="#">Informes</a></li>
+            <li><a href="#">Solicitudes</a></li>
+        </ul>
     </header>
     <div id="body-content">
         <div id="user-info">

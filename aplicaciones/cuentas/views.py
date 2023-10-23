@@ -14,7 +14,9 @@ from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas
 
 def index(request):
     return render(request, 'index.html')
-
+ 
+def ebanco(request):
+    return render(request,'ebanco.html')
 
 class CiudadViews(viewsets.ModelViewSet):
     queryset = Ciudad.objects.all()
