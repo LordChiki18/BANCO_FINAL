@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 
 
 
+
 class Protegida (APIView):
     permission_classes = [IsAuthenticated]
 
@@ -18,6 +19,7 @@ class Protegida (APIView):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('aplicaciones.cuentas.urls')),
+    path('accounts/',include('django.contrib.auth.urls')),
     #path('api/', include('aplicaciones.cuentas.urls')),
     path('api/token/',TokenObtainPairView.as_view(),name='token_obtain_pair'),
     path('api/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),

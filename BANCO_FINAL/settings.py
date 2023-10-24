@@ -16,6 +16,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+login_redirect_url =''
+logout_redirect_url =''
 # Application definition
 
 INSTALLED_APPS = [
@@ -96,9 +98,7 @@ ROOT_URLCONF = 'BANCO_FINAL.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'
-                 # os.path.join(BASE_DIR,'my-react/build')
-                 ]
+        'DIRS': [os.path.join(BASE_DIR, 'templates')]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
