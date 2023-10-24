@@ -122,7 +122,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'gestion_bancaria',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': '123456',
         'HOST': 'localhost',  # O la dirección de tu servidor PostgreSQL
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }

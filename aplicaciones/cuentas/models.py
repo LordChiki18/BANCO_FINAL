@@ -118,7 +118,7 @@ class Ciudad(models.Model):
     postal_code = models.IntegerField()
 
     def __str__(self):
-        return f"{self.ciudad_id} - {self.ciudad} - {self.departamento}"
+        return f"{self.ciudad} - {self.departamento}"
 
 
 # Modelo para la tabla PERSONA
@@ -173,10 +173,26 @@ class Cliente(models.Model):
     ))
 
     def __str__(self):
-        return f"{self.cliente_id} {self.persona_id}"
+        return f"{self.persona_id}"
 
 
 # Modelo para la tabla CUENTAS
+def generate_unique_number(length):
+    # Genera un número aleatorio de la longitud especificada
+    while True:
+        number = random.randint(10 ** (length - 1), 10 ** length - 1)
+        if not Cuentas.objects.filter(nro_cuenta=number).exists():
+            return number
+
+
+def generate_unique_contract_number():
+    # Genera un número de contrato aleatorio
+    while True:
+        number = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        if not Cuentas.objects.filter(nro_contrato=number).exists():
+            return number
+
+
 class Cuentas(models.Model):
     cuenta_id = models.AutoField(primary_key=True)
     cliente_id = models.ForeignKey(Cliente, on_delete=models.CASCADE)
@@ -185,24 +201,10 @@ class Cuentas(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.nro_cuenta:
-            self.nro_cuenta = self.generate_unique_number(8)  # Genera un número de 8 dígitos
+            self.nro_cuenta = generate_unique_number(8)  # Genera un número de 8 dígitos
         if not self.nro_contrato:
-            self.nro_contrato = self.generate_unique_contract_number()  # Genera numero de contrato
+            self.nro_contrato = generate_unique_contract_number()  # Genera numero de contrato
         super(Cuentas, self).save(*args, **kwargs)
-
-    def generate_unique_number(self, length):
-        # Genera un número aleatorio de la longitud especificada
-        while True:
-            number = random.randint(10 ** (length - 1), 10 ** length - 1)
-            if not Cuentas.objects.filter(nro_cuenta=number).exists():
-                return number
-
-    def generate_unique_contract_number(self):
-        # Genera un número de contrato aleatorio
-        while True:
-            number = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-            if not Cuentas.objects.filter(nro_contrato=number).exists():
-                return number
 
     fecha_alta = models.DateTimeField(auto_now_add=True)
     tipo_cuenta = models.CharField(choices=(
@@ -223,13 +225,13 @@ class Cuentas(models.Model):
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
     costo_mantenimiento = models.DecimalField(max_digits=10, decimal_places=2)
     promedio_acreditacion = models.DecimalField(max_digits=10, decimal_places=2)
-    moneda = models.CharField(choices=( 
+    moneda = models.CharField(choices=(
         ('Guaraní', 'Guaraní'),
         ('Dolares_Americanos', 'Dolares_Americanos'),
     ))
 
     def __str__(self):
-        return f"{self.cuenta_id} {self.nro_cuenta}"
+        return f"{self.nro_cuenta}"
 
 
 # Modelo para la tabla MOVIMIENTOS
@@ -246,4 +248,7 @@ class Movimientos(models.Model):
     monto_movimiento = models.DecimalField(max_digits=10, decimal_places=2)
     cuenta_origen = models.DecimalField(max_digits=10, decimal_places=2)
     cuenta_destino = models.DecimalField(max_digits=10, decimal_places=2)
-    canal = models.CharField(max_length=255)
+    canal = models.CharField(choices=(
+        ('App', 'Aplicacion'),
+        ('Web', 'Pagina'),
+    ))
