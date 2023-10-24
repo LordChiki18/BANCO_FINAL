@@ -20,5 +20,6 @@ urlpatterns = [
     path('api/', include('aplicaciones.cuentas.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('protegida/', Protegida.as_view(), name='protegida'),
 ]

@@ -16,6 +16,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+login_redirect_url = ''
+logout_redirect_url = ''
 # Application definition
 
 INSTALLED_APPS = [
@@ -96,9 +98,7 @@ ROOT_URLCONF = 'BANCO_FINAL.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'
-                 # os.path.join(BASE_DIR,'my-react/build')
-                 ]
+        'DIRS': [os.path.join(BASE_DIR, 'templates')]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -121,8 +121,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'gestion_bancaria',
-        'USER': 'postgres',
-        'PASSWORD': '123456',
+        'USER': 'superbanco',
+        'PASSWORD': '#@yd1_423/*',
         'HOST': 'localhost',  # O la dirección de tu servidor PostgreSQL
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
@@ -169,7 +169,6 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
