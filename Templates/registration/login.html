@@ -14,25 +14,15 @@
   <body>
     <header>
       <nav class="sectionh__container navh__container">
-        <div class="nav__logo"><img src="{% static 'main/media/logo.jpeg' %}" alt="Logo"></div>
-        <div class="nav__logo">Banco DOCAP</div>
+        <div class="nav__logo"><img src="{% static 'main/media/logo.jpeg' %}" alt="Logo">Banco DOCAP</div>
         <ul class="nav__links">
-          <li class="link">
-            <a href="#">Cuentas</a>
-            <!--<select id="cuentas-dropdown" class="dropdown">
-                <option value="" disabled selected>Selecciona una cuenta</option>
-                <option value="cuenta1">Cuenta 1</option>
-                <option value="cuenta2">Cuenta 2</option>
-                <option value="cuenta3">Cuenta 3</option>
-               
-            </select>-->
-        </li>
+          <li class="link"><a href="#">Cuentas (*)</a></li>
           <li class="link"><a href="#">Tarjetas</a></li>
           <li class="link"><a href="#">Creditos</a></li>
           <li class="link"><a href="#">Sobre Nosotros</a></li>
           <li class="link"><a href="#">Contacto</a></li>
         </ul>
-        <button class="btncli"><a href={% url 'iniciar_sesion' %}>Online Banking<a/></button>
+        <button class="btncli">Online Banking</button>
         <button class="btn">Quiero ser Cliente</button>
       </nav>
       <div class="section__container header__container">
@@ -48,6 +38,22 @@
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit animi maiores doloribus nulla aliquam, 
             voluptatum vero eius! Voluptatum dolor, doloribus a illum dignissimos cupiditate, ad quia corrupti quae molestias iure?
           </p>
+        </div>
+
+        <div class="header__form">
+          <form action="{% url 'login' %}" method="post">
+            <h4>Tu online Banking</h4>
+            <p>Minim excepteur nulla eiusmod aute et velit enim sint Lorem enim do eu id laboris.</p>
+            {% csrf_token %}
+            <label for="username">Usuario:</label>
+            <input type="text" id="username" name="username" required>
+            <br>
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <p>Mantener sesion iniciada</p>
+            <button class="btn form__btn" type="submit">Iniciar Sesion</button>
+          </form>
         </div>
       </div>
     </header>
