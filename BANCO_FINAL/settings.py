@@ -16,8 +16,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-login_redirect_url =''
-logout_redirect_url =''
+login_redirect_url = ''
+logout_redirect_url = ''
 # Application definition
 
 INSTALLED_APPS = [
@@ -169,7 +169,6 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
