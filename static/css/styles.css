@@ -243,14 +243,14 @@ header {
 
 .header__form {
   width: 100%;
-  max-width: 350px;
+  max-width: 450px;
 }
 
 .header__form form {
   display: grid;
-  gap: 1rem;
+  gap: 0.5rem;
   padding: 2rem;
-  background-color: var(--footer-color);
+  background-color: rgba(102, 215, 64, 0.388);  
   border-radius: 10px;
   box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
 }
