@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -14,72 +13,62 @@
   <body>
     <header>
       <nav class="sectionh__container navh__container">
-        <div class="nav__logo"><img src="{% static 'main/media/logo.jpeg' %}" alt="Logo">Banco DOCAP</div>
+        <div class="nav__logo"><img src="{% static 'main/media/logo.jpeg' %}" alt="Logo"></div>
+        <div class="nav__logo">Banco DOCAP</div>
         <ul class="nav__links">
-          <li class="link"><a href="#">Cuentas (*)</a></li>
+          <li class="link">
+            <a href="#">Cuentas</a>
+        </li>
           <li class="link"><a href="#">Tarjetas</a></li>
           <li class="link"><a href="#">Creditos</a></li>
           <li class="link"><a href="#">Sobre Nosotros</a></li>
           <li class="link"><a href="#">Contacto</a></li>
         </ul>
-        <button class="btncli">Online Banking</button>
+        <button class="btncli"><a href={% url 'iniciar_sesion' %}>Online Banking<a/></button>
         <button class="btn">Quiero ser Cliente</button>
       </nav>
       <div class="section__container header__container">
-        <div class="header__form_registro">
-          <form action="{% url 'registro' %}" method="post">
+        <div class="header__content">
+         <h1>Contigo en todo momento</h1>
+          <h1>Tu Banco a toda hora</h1>
+          <p>
+             Para registrarte completa tus datos
+          </p>
+        </div>
+        <div class="header__form">
+          <form action="{% url 'login' %}" method="post">
             <h4>Comienza a organizarte con la ayuda del mejor Banco</h4>
             {% csrf_token %}
             {{ form.non_field_errors }}
+            <br>
             <div class="form-group">
-              {{ form.ciudad_id.label_tag }}
-              {{ form.ciudad_id }}
-            </div>
-            <div class="form-group">
-              {{ form.nombre.label_tag }}
               {{ form.nombre }}
             </div>
             <div class="form-group">
-              {{ form.apellido.label_tag }}
               {{ form.apellido }}
             </div>
             <div class="form-group">
-              {{ form.tipo_documento.label_tag }}
               {{ form.tipo_documento }}
             </div>
             <div class="form-group">
-              {{ form.numero_documento.label_tag }}
               {{ form.numero_documento }}
             </div>
             <div class="form-group">
-              {{ form.direccion.label_tag }}
+              {{ form.ciudad_id }}
+            </div>
+            <div class="form-group">
               {{ form.direccion }}
             </div>
             <div class="form-group">
-              {{ form.celular.label_tag }}
               {{ form.celular }}
             </div>
             <div class="form-group">
-              {{ form.email.label_tag }}
               {{ form.email }}
             </div>
-            <button class="btn form__btn" type="submit">Registrar</button>
+            <br>
+            <button class="btn form__btn" type="submit">Registrarme</button>
           </form>
         </div>
       </div>
-    </header>
-
-    <footer class="footer">
-      <div class="footer__bar">
-        <div class="footer__bar__content">
-          <h3 style="color: white;">Contigo en todo momento</h3>
-          <div class="footer__socials">
-            <a href="#">Contacto</a>
-            <a href="#">Política</a>
-            <a href="#">Términos</a>
-          </div>
-        </div>
       </div>
-    </footer>
-  </body>
-</html>
+    </header>
