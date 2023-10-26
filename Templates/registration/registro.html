@@ -32,32 +32,32 @@
             {% csrf_token %}
             {{ form.non_field_errors }}
             <div class="form-group">
-                <label for="{{ form.nombre.id_for_label }}">Nombre:</label>
-                {{ form.nombre }}
+              {{ form.nombre.label_tag }}
+              {{ form.nombre }}
             </div>
             <div class="form-group">
-                <label for="{{ form.apellido.id_for_label }}">Apellido:</label>
-                {{ form.apellido }}
+              {{ form.apellido.label_tag }}
+              {{ form.apellido }}
             </div>
             <div class="form-group">
-                <label for="{{ form.tipo_documento.id_for_label }}">Tipo de Documento:</label>
-                {{ form.tipo_documento }}
+              {{ form.tipo_documento.label_tag }}
+              {{ form.tipo_documento }}
             </div>
             <div class="form-group">
-                <label for="{{ form.numero_documento.id_for_label }}">Número de Documento:</label>
-                {{ form.numero_documento }}
+              {{ form.numero_documento.label_tag }}
+              {{ form.numero_documento }}
             </div>
             <div class="form-group">
-                <label for="{{ form.direccion.id_for_label }}">Dirección:</label>
-                {{ form.direccion }}
+              {{ form.direccion.label_tag }}
+              {{ form.direccion }}
             </div>
             <div class="form-group">
-                <label for="{{ form.celular.id_for_label }}">Celular:</label>
-                {{ form.celular }}
+              {{ form.celular.label_tag }}
+              {{ form.celular }}
             </div>
             <div class="form-group">
-                <label for="{{ form.email.id_for_label }}">Email:</label>
-                {{ form.email }}
+              {{ form.email.label_tag }}
+              {{ form.email }}
             </div>
             <button class="btn form__btn" type="submit">Registrar</button>
           </form>
