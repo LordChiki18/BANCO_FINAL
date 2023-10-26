@@ -52,22 +52,25 @@ def registro_usuario(request):
             user = form.save()
             login(request, user)
 
-            # Obtén los datos del usuario y genera la contraseña aleatoria
-            nombre = user.first_name
-            apellido = user.last_name
-            username = user.username
+            # Obtén los datos del usuario
+            nombre = form.cleaned_data.get('nombre')
+            apellido = form.cleaned_data.get('apellido')
+            username = 'prueba'
+            email = form.cleaned_data.get('email')
+
+            # Genera una contraseña aleatoria
             password = ''.join(random.choices(string.digits, k=6))
 
             # Envía el correo electrónico
             send_mail(
                 'Registro exitoso',
-                f'Hola, {nombre}!\nTe hemos registrado satisfactoriamente.\nTu nombre de usuario es: {username}\nTu contraseña es: {password}',
+                f'Hola, {nombre} {apellido}!\nTe hemos registrado satisfactoriamente.\nTu nombre de usuario es: {username}\nTu contraseña es: {password}',
                 'proyectodocap@gmail.com',
-                [user.email],  # Envía el correo al email del usuario registrado
+                [email],  # Envía el correo al email del usuario registrado
                 fail_silently=False,
             )
 
-            return redirect('index.html')  # Cambia 'index.html' por el nombre de tu vista de inicio
+            return redirect('index')  # Cambia 'index' por el nombre de tu vista de inicio
     else:
         form = RegistroForm()
     return render(request, 'registration/registro.html', {'form': form})
