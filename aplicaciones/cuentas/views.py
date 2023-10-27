@@ -1,3 +1,4 @@
+        
 from decimal import InvalidOperation, Decimal
 from django.shortcuts import render, redirect
 from rest_framework import viewsets, status
@@ -122,6 +123,14 @@ class TransferenciasView(APIView):
         cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
         cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
 
+        if cuenta_origen.estado == 'Bloqueada':
+            return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if cuenta_destino.estado == 'Bloqueada':
+            return Response({'error': 'La cuenta de destino está bloqueada, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         if cuenta_origen.saldo < monto:
             return Response({'error', 'Saldo Insuficiente'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -160,3 +169,18 @@ class TransferenciasView(APIView):
                                    canal=canal)
         return Response({'message': 'Transferencia realizada con éxito'},
                         status=status.HTTP_200_OK)
+
+class CambiarEstadoCuentaView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        nro_cuenta = request.data.get('nro_cuenta')
+        estado_nuevo = request.data.get('estado')
+
+        try:
+            cuenta = Cuentas.objects.get(nro_cuenta=nro_cuenta)
+            cuenta.estado = estado_nuevo
+            cuenta.save()
+            return Response({'message': f'El estado de la cuenta {nro_cuenta} ha sido cambiado a {estado_nuevo}'}, status=status.HTTP_200_OK)
+        except Cuentas.DoesNotExist:
+            return Response({'error': 'La cuenta no existe'}, status=status.HTTP_404_NOT_FOUND)

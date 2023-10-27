@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from aplicaciones.cuentas import views
 from aplicaciones.cuentas.views import CiudadViews, PersonaViews, ClienteViews, CuentasViews, index, iniciar_sesion, \
-    cuentas_page, TransferenciasView
+    cuentas_page, TransferenciasView, CambiarEstadoCuentaView
 
 router = DefaultRouter()
 
@@ -19,4 +19,6 @@ urlpatterns = [
     path('cuentas/', views.cuentas_page, name='cuentas_page'),
     path('gestiones/', include(router.urls)),
     path('finanzas/transferencias', TransferenciasView.as_view()),
+    path('cambiar-estado-cuenta/', CambiarEstadoCuentaView.as_view(), name='cambiar_estado'),
+
 ]
