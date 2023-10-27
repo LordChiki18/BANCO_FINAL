@@ -1,3 +1,4 @@
+        
 from decimal import InvalidOperation, Decimal
 from django.shortcuts import render, redirect
 from rest_framework import viewsets, status
@@ -10,6 +11,10 @@ from aplicaciones.cuentas.serializers import (CiudadSerializer, PersonaSerialize
                                               CuentasSerializer)
 from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos
 from django.contrib.auth import authenticate, login
+from django.core.mail import send_mail
+from .forms import RegistroForm
+import random
+import string
 
 
 # Create your views here.
@@ -40,6 +45,36 @@ def iniciar_sesion(request):
 def cuentas_page(request):
     return render(request, 'cuentas.html')
 
+
+def registro_usuario(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+
+            # Obtén los datos del usuario
+            nombre = form.cleaned_data.get('nombre')
+            apellido = form.cleaned_data.get('apellido')
+            username = 'prueba'
+            email = form.cleaned_data.get('email')
+
+            # Genera una contraseña aleatoria
+            password = ''.join(random.choices(string.digits, k=6))
+
+            # Envía el correo electrónico
+            send_mail(
+                'Registro exitoso',
+                f'Hola, {nombre} {apellido}!\nTe hemos registrado satisfactoriamente.\nTu nombre de usuario es: {username}\nTu contraseña es: {password}',
+                'proyectodocap@gmail.com',
+                [email],  # Envía el correo al email del usuario registrado
+                fail_silently=False,
+            )
+
+            return redirect('index')  # Cambia 'index' por el nombre de tu vista de inicio
+    else:
+        form = RegistroForm()
+    return render(request, 'registration/registro.html', {'form': form})
 
 class CiudadViews(viewsets.ModelViewSet):
     queryset = Ciudad.objects.all()
@@ -88,6 +123,14 @@ class TransferenciasView(APIView):
         cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
         cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
 
+        if cuenta_origen.estado == 'Bloqueada':
+            return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if cuenta_destino.estado == 'Bloqueada':
+            return Response({'error': 'La cuenta de destino está bloqueada, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         if cuenta_origen.saldo < monto:
             return Response({'error', 'Saldo Insuficiente'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -126,3 +169,18 @@ class TransferenciasView(APIView):
                                    canal=canal)
         return Response({'message': 'Transferencia realizada con éxito'},
                         status=status.HTTP_200_OK)
+
+class CambiarEstadoCuentaView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        nro_cuenta = request.data.get('nro_cuenta')
+        estado_nuevo = request.data.get('estado')
+
+        try:
+            cuenta = Cuentas.objects.get(nro_cuenta=nro_cuenta)
+            cuenta.estado = estado_nuevo
+            cuenta.save()
+            return Response({'message': f'El estado de la cuenta {nro_cuenta} ha sido cambiado a {estado_nuevo}'}, status=status.HTTP_200_OK)
+        except Cuentas.DoesNotExist:
+            return Response({'error': 'La cuenta no existe'}, status=status.HTTP_404_NOT_FOUND)
