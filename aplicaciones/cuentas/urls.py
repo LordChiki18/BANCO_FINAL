@@ -13,7 +13,7 @@ router.register(r'Cliente', ClienteViews)
 router.register(r'Cuentas', CuentasViews)
 
 urlpatterns = [
-    path('', views.index),
+    path('', views.index, name='inicio'),
     path('accounts/login/', views.iniciar_sesion, name='iniciar_sesion'),
     path('registro/', views.registro_usuario, name='registro'),
     path('cuentas/', views.cuentas_page, name='cuentas_page'),

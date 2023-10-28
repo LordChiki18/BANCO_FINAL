@@ -1,4 +1,4 @@
-        
+import secrets
 from decimal import InvalidOperation, Decimal
 from django.shortcuts import render, redirect
 from rest_framework import viewsets, status
@@ -28,16 +28,18 @@ def iniciar_sesion(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = authenticate(request, username=username, password=password)
+        try:
+            user = Persona.objects.get(custom_username=username)  # Obtén al usuario por su email
+        except Persona.DoesNotExist:
+            user = None
 
-        if user is not None:
+        if user is not None and user.check_password(password):
             login(request, user)
             return redirect(
-                'http://127.0.0.1:8000/cuentas/')  # Redirecciona a la página "cuentas.html" (ajusta el nombre de la
-            # URL según tus rutas).
+                'cuentas_page')  # Redirecciona a la página "cuentas.html" (ajusta el nombre de la URL según tus rutas).
         else:
             error_message = "Usuario o contraseña incorrectos"
-            return render(request, 'login.html', {'error_message': error_message})
+            return render(request, 'registration/login.html', {'error_message': error_message})
 
     return render(request, 'registration/login.html')
 
@@ -46,35 +48,63 @@ def cuentas_page(request):
     return render(request, 'cuentas.html')
 
 
+def generate_secure_password(length=10):
+    characters = string.ascii_letters + string.digits + string.punctuation
+    while True:
+        password = ''.join(secrets.choice(characters) for _ in range(length))
+        if (
+                len(password) >= 8 and  # Cumple con la longitud mínima
+                any(char.isdigit() for char in password)  # Contiene al menos un carácter numérico
+        ):
+            return password
+
+
+def enviar_correo(to_email, subject, message):
+    from_email = 'proyectodocap@gmail.com'
+
+    send_mail(
+        subject,
+        message,
+        from_email,
+        [to_email],
+        fail_silently=False,
+    )
+
+
 def registro_usuario(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            print("Formulario válido")
+            user = form.save(commit=False)  # No guardes el usuario en la base de datos todavía
+            print(f"Datos del usuario: {user.__dict__}")
+            user.is_staff = False
+            user.is_superuser = False
+            generated_password = generate_secure_password()  # Genera una contraseña aleatoria
+            user.set_password(generated_password)  # Configura la contraseña generada
+            user.save()  # Ahora guarda el usuario en la base de datos
+            print(f"Datos del usuario: {user.__dict__}")
             login(request, user)
+            print("Usuario guardado en la base de datos")
 
             # Obtén los datos del usuario
             nombre = form.cleaned_data.get('nombre')
             apellido = form.cleaned_data.get('apellido')
-            username = 'prueba'
             email = form.cleaned_data.get('email')
 
-            # Genera una contraseña aleatoria
-            password = ''.join(random.choices(string.digits, k=6))
-
             # Envía el correo electrónico
-            send_mail(
-                'Registro exitoso',
-                f'Hola, {nombre} {apellido}!\nTe hemos registrado satisfactoriamente.\nTu nombre de usuario es: {username}\nTu contraseña es: {password}',
-                'proyectodocap@gmail.com',
-                [email],  # Envía el correo al email del usuario registrado
-                fail_silently=False,
-            )
+            subject = 'Registro exitoso'
+            message = (f'Hola, {nombre} {apellido}!\nTe hemos registrado satisfactoriamente.'
+                       f'\nTu id de sesion es tu CI: {user.custom_username}'
+                       f'\nTu contraseña generica es: {generated_password}')
 
-            return redirect('index')  # Cambia 'index' por el nombre de tu vista de inicio
+            enviar_correo(email, subject, message)
+
+            return redirect('inicio')
     else:
         form = RegistroForm()
     return render(request, 'registration/registro.html', {'form': form})
+
 
 class CiudadViews(viewsets.ModelViewSet):
     queryset = Ciudad.objects.all()
@@ -170,6 +200,7 @@ class TransferenciasView(APIView):
         return Response({'message': 'Transferencia realizada con éxito'},
                         status=status.HTTP_200_OK)
 
+
 class CambiarEstadoCuentaView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -181,6 +212,7 @@ class CambiarEstadoCuentaView(APIView):
             cuenta = Cuentas.objects.get(nro_cuenta=nro_cuenta)
             cuenta.estado = estado_nuevo
             cuenta.save()
-            return Response({'message': f'El estado de la cuenta {nro_cuenta} ha sido cambiado a {estado_nuevo}'}, status=status.HTTP_200_OK)
+            return Response({'message': f'El estado de la cuenta {nro_cuenta} ha sido cambiado a {estado_nuevo}'},
+                            status=status.HTTP_200_OK)
         except Cuentas.DoesNotExist:
             return Response({'error': 'La cuenta no existe'}, status=status.HTTP_404_NOT_FOUND)

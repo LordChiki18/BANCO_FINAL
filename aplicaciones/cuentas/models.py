@@ -1,6 +1,6 @@
 import random
 import string
-
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
 
 
@@ -106,10 +106,27 @@ class Ciudad(models.Model):
         return f"{self.ciudad} - {self.departamento}"
 
 
-# Modelo para la tabla PERSONA
-class Persona(models.Model):
+class PersonaManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('El campo "email" es obligatorio.')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, password, **extra_fields)
+
+
+# Modelo de usuario normal (Persona)
+class Persona(AbstractBaseUser, PermissionsMixin):
     persona_id = models.AutoField(primary_key=True)
-    ciudad_id = models.ForeignKey(Ciudad, on_delete=models.CASCADE)
+    email = models.EmailField(unique=True)
+    ciudad_id = models.ForeignKey(Ciudad, on_delete=models.CASCADE, null=True)
     nombre = models.CharField(max_length=255)
     apellido = models.CharField(max_length=255)
     tipo_documento = models.CharField(choices=(
@@ -120,7 +137,6 @@ class Persona(models.Model):
     numero_documento = models.CharField(max_length=255, unique=True)
     direccion = models.CharField(max_length=255)
     celular = models.CharField(max_length=255)
-    email = models.EmailField()
     estado = models.CharField(choices=(
         ('Activo', 'Activo'),
         ('Inactivo', 'Inactivo'),
@@ -129,11 +145,37 @@ class Persona(models.Model):
         ('Pendiente', 'Pendiente'),
         ('Suspendido', 'Suspendido'),
         ('En revisión', 'En revisión'),
-        ('Default', 'Default'),
-    ))
+    ), default='En revisión')
+    custom_username = models.CharField(max_length=30, unique=True, null=True, blank=True)
+    objects = PersonaManager()
+
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name='groups',
+        blank=True,
+        related_name='user_personas'  # Cambia 'user_personas' a un nombre único
+    )
+
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name='user permissions',
+        blank=True,
+        related_name='user_personas_permissions'  # Cambia 'user_personas_permissions' a un nombre único
+    )
+
+    USERNAME_FIELD = 'custom_username'
+    REQUIRED_FIELDS = ['email', 'nombre', 'apellido']
+
+    is_staff = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido} - {self.numero_documento}"
+        return self.custom_username
+
+    def save(self, *args, **kwargs):
+        if not self.custom_username:
+            # Genera el username a partir de la primera letra del nombre y número de documento
+            self.custom_username = f"{self.nombre[0]}{self.numero_documento}"
+        super().save(*args, **kwargs)
 
 
 # Modelo para la tabla CLIENTE
