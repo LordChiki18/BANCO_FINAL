@@ -24,8 +24,8 @@
           <li class="link"><a href="#">Sobre Nosotros</a></li>
           <li class="link"><a href="#">Contacto</a></li>
         </ul>
-        <button class="btncli"><a href={% url 'iniciar_sesion' %}>Online Banking<a/></button>
-        <button class="btn">Quiero ser Cliente</button>
+        <a href={% url 'iniciar_sesion' %}><button class="btncli">Online Banking</button></a>
+          <a href={% url 'registro' %}><button class="btn">Quiero ser Cliente</button></a>
       </nav>
       <div class="section__container header__container">
         <div class="header__content">
@@ -36,7 +36,7 @@
           </p>
         </div>
         <div class="header__form">
-          <form action="{% url 'login' %}" method="post">
+          <form action="{% url 'registro' %}" method="post">
             <h4>Comienza a organizarte con la ayuda del mejor Banco</h4>
             {% csrf_token %}
             {{ form.non_field_errors }}

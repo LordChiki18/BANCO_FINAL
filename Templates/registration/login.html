@@ -2,70 +2,77 @@
 
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
+            href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
     />
     <title>Banco DOCAP</title>
-  </head>
-  <body>
-    <header>
-      <nav class="sectionh__container navh__container">
+</head>
+<body>
+<header>
+    <nav class="sectionh__container navh__container">
         <div class="nav__logo"><img src="{% static 'main/media/logo.jpeg' %}" alt="Logo"></div>
         <div class="nav__logo">Banco DOCAP</div>
         <ul class="nav__links">
-          <li class="link">
-            <a href="#">Cuentas</a>
-        </li>
-          <li class="link"><a href="#">Tarjetas</a></li>
-          <li class="link"><a href="#">Creditos</a></li>
-          <li class="link"><a href="#">Sobre Nosotros</a></li>
-          <li class="link"><a href="#">Contacto</a></li>
+            <li class="link">
+                <a href="#">Cuentas</a>
+            </li>
+            <li class="link"><a href="#">Tarjetas</a></li>
+            <li class="link"><a href="#">Creditos</a></li>
+            <li class="link"><a href="#">Sobre Nosotros</a></li>
+            <li class="link"><a href="#">Contacto</a></li>
         </ul>
-        <button class="btncli"><a href={% url 'iniciar_sesion' %}>Online Banking<a/></button>
-        <button class="btn">Quiero ser Cliente</button>
-      </nav>
-      <div class="section__container header__container">
+        <a href={% url 'iniciar_sesion' %}>
+            <button class="btncli">Online Banking</button>
+        </a>
+        <a href={% url 'registro' %}>
+            <button class="btn">Quiero ser Cliente</button>
+        </a>
+    </nav>
+    <div class="section__container header__container">
         <div class="header__content">
-          <h1>Contigo en todo momento</h1>
-          <h1>Tu Banco a toda hora</h1>
-          <p>
-             Para iniciar sesion ingresa tus datos
-          </p>
+            <h1>Contigo en todo momento</h1>
+            <h1>Tu Banco a toda hora</h1>
+            <p>
+                Para iniciar sesion ingresa tus datos
+            </p>
         </div>
         <div class="header__form">
-          <form action="{% url 'login' %}" method="post">
-            <h4>Tu Online Banking</h4>
-            <p>Minim excepteur nulla eiusmod aute et velit enim sint Lorem enim do eu id laboris.</p>
-            {% csrf_token %}
-            <input type="text" id="username" placeholder="Usuario" name="username" required >
-            <br>
-            <input type="password" id="password" placeholder="Contraseña" name="password" required>
-            <br>
-            <label for="remember_me">
-              <input type="checkbox" id="remember_me" name="remember_me"> Recordarme
-            </label>
-            <br>
-            <button class="btn form__btn" type="submit">Iniciar Sesion</button>
-          </form>
+            <form action="{% url 'iniciar_sesion' %}" method="post">
+                <h4>Tu Online Banking</h4>
+                <p>Minim excepteur nulla eiusmod aute et velit enim sint Lorem enim do eu id laboris.</p>
+                {% csrf_token %}
+                <input type="text" id="username" placeholder="Usuario" name="username" required>
+                <br>
+                <input type="password" id="password" placeholder="Contraseña" name="password" required>
+                <br>
+                <label for="remember_me">
+                    <input type="checkbox" id="remember_me" name="remember_me"> Recordarme
+                </label>
+                <label>
+                    {{ error_message }}
+                </label>
+                <br>
+                <button class="btn form__btn" type="submit">Iniciar Sesion</button>
+            </form>
         </div>
-      </div>
-      </div>
-    </header>
-    <footer class="footer">
-      <div class="footer__bar">
+    </div>
+    </div>
+</header>
+<footer class="footer">
+    <div class="footer__bar">
         <div class="footer__bar__content">
-          <h3 style="color: white;">Contigo en todo momento</h3>
-          <div class="footer__socials">
-            <a href="#">Contacto</a>
-            <a href="#">Politica</a>
-            <a href="#">Terminos</a>
-          </div>
+            <h3 style="color: white;">Contigo en todo momento</h3>
+            <div class="footer__socials">
+                <a href="#">Contacto</a>
+                <a href="#">Politica</a>
+                <a href="#">Terminos</a>
+            </div>
         </div>
-      </div>
-    </footer>
-  </body>
+    </div>
+</footer>
+</body>
 </html>
