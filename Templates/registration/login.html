@@ -37,22 +37,16 @@
         <div class="header__content">
             <h1>Contigo en todo momento</h1>
             <h1>Tu Banco a toda hora</h1>
-            <p>
-                Para iniciar sesion ingresa tus datos
-            </p>
         </div>
         <div class="header__form">
             <form action="{% url 'iniciar_sesion' %}" method="post">
                 <h4>Tu Online Banking</h4>
-                <p>Minim excepteur nulla eiusmod aute et velit enim sint Lorem enim do eu id laboris.</p>
+                <p> Para iniciar sesion ingresa tus datos</p>
                 {% csrf_token %}
                 <input type="text" id="username" placeholder="Usuario" name="username" required>
                 <br>
                 <input type="password" id="password" placeholder="Contraseña" name="password" required>
                 <br>
-                <label for="remember_me">
-                    <input type="checkbox" id="remember_me" name="remember_me"> Recordarme
-                </label>
                 <label>
                     {{ error_message }}
                 </label>
