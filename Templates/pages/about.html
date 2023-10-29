@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -19,58 +20,38 @@
         <ul class="nav__links">
           <li class="link">
             <a href="#">Cuentas</a>
+            <!--<select id="cuentas-dropdown" class="dropdown">
+                <option value="" disabled selected>Selecciona una cuenta</option>
+                <option value="cuenta1">Cuenta 1</option>
+                <option value="cuenta2">Cuenta 2</option>
+                <option value="cuenta3">Cuenta 3</option>
+               
+            </select>-->
         </li>
           <li class="link"><a href="#">Tarjetas</a></li>
           <li class="link"><a href="#">Creditos</a></li>
           <li class="link"><a href="#">Sobre Nosotros</a></li>
           <li class="link"><a href="#">Contacto</a></li>
         </ul>
-        <a href={% url 'iniciar_sesion' %}><button class="btncli">Online Banking</button></a>
-          <a href={% url 'registro' %}><button class="btn">Quiero ser Cliente</button></a>
+        <a href={% url 'iniciar_sesion' %}>
+          <button class="btncli">Online Banking</button>
+        <a/>
+        <a href={% url 'registro' %}>
+          <button class="btn">Quiero ser Cliente</button>
+        </a>
       </nav>
       <div class="section__container header__container">
         <div class="header__content">
-         <h1>Contigo en todo momento</h1>
-          <h1>Tu Banco a toda hora</h1>
+          <h1>Sobre Nosotros</h1>
           <p>
-             Para registrarte completa tus datos
+            Somos una entidad financiera dedicada a impulsar tus sueños y metas financieras. 
+            Nacimos con la visión de ofrecer soluciones bancarias modernas, accesibles y centradas en el cliente.
+             Nuestro enfoque es simple: ponerte a vos, nuestros clientes, en el centro de todo lo que hacemos. 
+             Estamos comprometidos en brindarte servicios bancarios ágiles y personalizados para que puedas disfrutar 
+             de una experiencia financiera sin complicaciones. En [Nombre del Banco], estamos aquí para ayudarte a prosperar y crecer. 
+             Bienvenido a una nueva forma de hacer banca.
           </p>
         </div>
-        <div class="header__form">
-          <form action="{% url 'registro' %}" method="post">
-            <h4>Comienza a organizarte con la ayuda del mejor Banco</h4>
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            <br>
-            <div class="form-group">
-              {{ form.nombre }}
-            </div>
-            <div class="form-group">
-              {{ form.apellido }}
-            </div>
-            <div class="form-group">
-              {{ form.tipo_documento }}
-            </div>
-            <div class="form-group">
-              {{ form.numero_documento }}
-            </div>
-            <div class="form-group">
-              {{ form.ciudad_id }}
-            </div>
-            <div class="form-group">
-              {{ form.direccion }}
-            </div>
-            <div class="form-group">
-              {{ form.celular }}
-            </div>
-            <div class="form-group">
-              {{ form.email }}
-            </div>
-            <br>
-            <button class="btn form__btn" type="submit">Registrarme</button>
-          </form>
-        </div>
-      </div>
       </div>
     </header>
     <footer class="footer">
