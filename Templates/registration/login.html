@@ -6,6 +6,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="{% static 'main/media/favicon.ico' %}" type="image/x-icon">
     <link
       href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
     />
@@ -14,7 +15,7 @@
   <body>
     <header>
       <nav class="sectionh__container navh__container">
-        <div class="nav__logo"><img src="{% static 'main/media/logo.jpeg' %}" alt="Logo"></div>
+        <div class="nav__logo"><img src="{% static 'main/media/logo.png' %}" alt="Logo"></div>
         <div class="nav__logo">Banco DOCAP</div>
         <ul class="nav__links">
           <li class="link">
@@ -33,21 +34,17 @@
           <h1>Contigo en todo momento</h1>
           <h1>Tu Banco a toda hora</h1>
           <p>
-             Para iniciar sesion ingresa tus datos
+             Bienvenido nuevamente 😁
           </p>
         </div>
         <div class="header__form">
           <form action="{% url 'login' %}" method="post">
             <h4>Tu Online Banking</h4>
-            <p>Minim excepteur nulla eiusmod aute et velit enim sint Lorem enim do eu id laboris.</p>
+            <p>Para iniciar sesion ingresa tus datos 😉</p>
             {% csrf_token %}
             <input type="text" id="username" placeholder="Usuario" name="username" required >
             <br>
             <input type="password" id="password" placeholder="Contraseña" name="password" required>
-            <br>
-            <label for="remember_me">
-              <input type="checkbox" id="remember_me" name="remember_me"> Recordarme
-            </label>
             <br>
             <button class="btn form__btn" type="submit">Iniciar Sesion</button>
           </form>

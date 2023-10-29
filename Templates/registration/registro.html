@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="{% static 'main/media/favicon.ico' %}" type="image/x-icon">
     <link
       href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
     />
@@ -13,7 +14,7 @@
   <body>
     <header>
       <nav class="sectionh__container navh__container">
-        <div class="nav__logo"><img src="{% static 'main/media/logo.jpeg' %}" alt="Logo"></div>
+        <div class="nav__logo"><img src="{% static 'main/media/logo.png' %}" alt="Logo"></div>
         <div class="nav__logo">Banco DOCAP</div>
         <ul class="nav__links">
           <li class="link">
@@ -72,3 +73,17 @@
       </div>
       </div>
     </header>
+    <footer class="footer">
+      <div class="footer__bar">
+        <div class="footer__bar__content">
+          <h3 style="color: white;">Contigo en todo momento</h3>
+          <div class="footer__socials">
+            <a href="#">Contacto</a>
+            <a href="#">Politica</a>
+            <a href="#">Terminos</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

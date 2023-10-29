@@ -223,7 +223,7 @@ header {
 
 .header__container {
   display: flex;
-  align-items: center;
+  /*align-items: center;*/
   gap: 5rem;
 }
 
