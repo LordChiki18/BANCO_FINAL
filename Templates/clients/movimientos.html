@@ -14,7 +14,8 @@
     <!-- Font Awesome Cdn Link -->
     <script src="https://kit.fontawesome.com/818ed1e0c5.js" crossorigin="anonymous"></script>
     <script src="{% static 'js/script.js' %}"></script>
-
+    <script src="{% static 'js/xlsx.js' %}"></script>
+    <script src="{% static 'js/jspdf.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
   </head>
   <body>
@@ -54,16 +55,27 @@
         <div class="history_lists">
           <div class="list1">
             <div class="row">
-              <h4>Historial de Movimientos en Cuentas</h4>
+              <label for="selectAccount">Origen:</label>
                 <select id="selectAccount">
-                    <option value="cuenta0"> Seleccionar...</option>
+                    <option value="cuenta0"> Todos...</option>
                     <option value="cuenta1">Cuenta Corriente</option>
                     <option value="cuenta2">Caja de Ahorro</option>
                 </select>
-              <a href="#">Descargar extracto</a>
-              <a href="#">Ver todos</a>
+                <label for="fechaDesde">Fecha Desde:</label>
+                <input type="date" id="fechaDesde">
+
+                <label for="fechaHasta">Hasta:</label>
+                <input type="date" id="fechaHasta">
+
+                <button onclick="mostrarFechas()">Buscar</button>
+                <p>Descargar Extracto:</p>
+                <button id="exportarXLSX">XLSX</button>
+                <script src="{% static 'js/exportarxlsx.js' %}"></script>
+                <button id="exportarCSV">CSV</button>
+                <script src="{% static 'js/exportarcsv.js' %}"></script>
             </div>
-          <table>
+            <p id="resultados"></p>
+          <table id="tablaDatos">
             <thead>
               <tr>
                 <th>#Nro</th>

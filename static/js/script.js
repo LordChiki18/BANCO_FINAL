@@ -36,3 +36,30 @@ function ocultarMontoCaja() {
   }
 }
 
+function mostrarFechas() {
+  const fechaDesdeInput = document.getElementById("fechaDesde");
+  const fechaHastaInput = document.getElementById("fechaHasta");
+  const resultados = document.getElementById("resultados");
+
+  const fechaDesde = fechaDesdeInput.value;
+  const fechaHasta = fechaHastaInput.value;
+
+  resultados.textContent = `Mostrando Desde: ${fechaDesde}, Hasta: ${fechaHasta}`;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const fechaDesdeInput = document.getElementById("fechaDesde");
+  const fechaHastaInput = document.getElementById("fechaHasta");
+
+  const fechaHoy = new Date();
+  const fechaPrimerDiaMes = new Date(fechaHoy.getFullYear(), fechaHoy.getMonth(), 1);
+
+  fechaDesdeInput.valueAsDate = fechaPrimerDiaMes;
+  fechaHastaInput.valueAsDate = fechaHoy;
+
+  mostrarFechas(); // Muestra las fechas por defecto al cargar la página
+
+  const botonMostrar = document.querySelector("button");
+  botonMostrar.addEventListener("click", mostrarFechas);
+});
+
