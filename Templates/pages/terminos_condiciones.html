@@ -10,29 +10,20 @@
     <link
       href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
     />
+    <script src="{% static 'js/script.js' %}"></script>
     <title>Banco DOCAP</title>
   </head>
   <body>
     <header>
       <nav class="sectionh__container navh__container">
-        <div class="nav__logo"><img src="{% static 'main/media/logo.png' %}" alt="Logo"></div>
-        <div class="nav__logo">Banco DOCAP</div>
+        <div class="nav__logo" onclick="redirigirAInicio()"><img src="{% static 'main/media/logo.png' %}" alt="Logo"></div>
+        <div class="nav__logo" onclick="redirigirAInicio()">Banco DOCAP</div>
         <ul class="nav__links">
-          <li class="link">
-            <a href="#">Cuentas</a>
-            <!--<select id="cuentas-dropdown" class="dropdown">
-                <option value="" disabled selected>Selecciona una cuenta</option>
-                <option value="cuenta1">Cuenta 1</option>
-                <option value="cuenta2">Cuenta 2</option>
-                <option value="cuenta3">Cuenta 3</option>
-               
-            </select>-->
-        </li>
-          <li class="link"><a href="#">Tarjetas</a></li>
-          <li class="link"><a href="#">Creditos</a></li>
-          <li class="link"><a href="#">Sobre Nosotros</a></li>
-          <li class="link"><a href="#">Contacto</a></li>
-        </ul>
+          <li class="link"><a href="{% url 'cuentas_desc' %}">Cuentas</a></li>
+            <li class="link"><a href="{% url 'tarjetas_desc' %}">Tarjetas</a></li>
+            <li class="link"><a href="{% url 'creditos_desc' %}">Creditos</a></li>
+            <li class="link"><a href="{% url 'about_desc' %}">Sobre Nosotros</a></li>
+            <li class="link"><a href="{% url 'contact_desc' %}">Contacto</a></li>
         <a href={% url 'iniciar_sesion' %}>
           <button class="btncli">Online Banking</button>
         <a/>
@@ -48,7 +39,6 @@
             y uso de nuestros servicios bancarios. Al utilizar nuestros servicios, usted acepta estos Términos 
             en su totalidad. Si no está de acuerdo con estos Términos, le instamos a no utilizar nuestros servicios bancarios.
           </p>
-          <br>
           <p>1. ACCESO A LOS SERVICIOS</p>
           <p>1.1 Registro: Para utilizar nuestros servicios bancarios, deberá registrarse en Banco DACOP y proporcionar 
             información precisa y actualizada. Usted es responsable de mantener la confidencialidad de su información de 
@@ -56,7 +46,6 @@
           <p>1.2 Requisitos de Elegibilidad: Debe cumplir con los requisitos de elegibilidad establecidos por Banco DACOP 
             para acceder a nuestros servicios.
           </p>
-          <br>
           <p>2. CUENTAS BANCARIAS</p>
           <p>2.1 Apertura de Cuentas: Banco DACOP ofrece una variedad de cuentas bancarias. 
             El proceso de apertura de cuenta está sujeto a verificación y aprobación por parte de Banco DACOP.
@@ -64,7 +53,6 @@
           <p>2.2 Uso de Cuentas: Las cuentas bancarias proporcionadas por Banco DACOP deben utilizarse para fines legales.
              No se permite el uso de las cuentas para actividades ilegales o fraudulentas.
           </p>
-          <br>
           <p>3. SERVICIOS BANCARIOS EN LÍNEA</p>
           <p>3.1 Transacciones en Línea: Usted puede realizar transacciones en línea, incluyendo transferencias, pagos de facturas 
             y consultas de saldo. Banco DACOP se esfuerza por mantener la seguridad de sus transacciones, pero usted es responsable 
@@ -73,7 +61,6 @@
           <p>3.2 Cargos y Tarifas: Algunas transacciones pueden estar sujetas a cargos y tarifas. Consulte nuestro Programa de
              Tarifas para obtener más detalles.
           </p>
-          <br>
           <p>4. RESPONSABILIDAD</p>
           <p>4.1 Pérdida o Robo: Si sospecha que su información de inicio de sesión ha sido perdida o robada, 
             debe notificarlo de inmediato a Banco DACOP para evitar transacciones no autorizadas.
@@ -82,18 +69,15 @@
             4.2 Uso No Autorizado: Banco DACOP no será responsable de las pérdidas causadas por el uso no autorizado de su cuenta, 
             a menos que haya notificado a Banco DACOP de la pérdida o robo en conformidad con el punto 4.1.
           </p>
-          <br>
           <p>5. MODIFICACIONES DE LOS TÉRMINOS</p>
           <p>
             Banco DACOP se reserva el derecho de modificar estos Términos en cualquier momento. Las modificaciones se harán efectivas 
             al ser publicadas en nuestro sitio web. Le recomendamos que revise estos Términos periódicamente.
           </p>
-          <br>
           <p>6. TERMINACIÓN</p>
           <p>Banco DACOP se reserva el derecho de terminar su acceso a nuestros servicios en cualquier momento, 
             por cualquier motivo, con o sin previo aviso.
           </p>
-          <br>
           <p>7. LEY APLICABLE</p>
           <p> Términos se rigen por las leyes vigentes en Paraguay y cualquier disputa se someterá a la jurisdicción de los tribunales de 
             Paraguay.
@@ -109,9 +93,9 @@
         <div class="footer__bar__content">
           <h3 style="color: white;">Contigo en todo momento</h3>
           <div class="footer__socials">
-            <a href="#">Contacto</a>
-            <a href="#">Politica</a>
-            <a href="#">Terminos</a>
+            <a href="{% url 'contact_desc' %}">Contacto</a>
+            <a href="{% url 'politicas_desc' %}">Politica</a>
+            <a href="{% url 'terminos_desc' %}">Terminos</a>
           </div>
         </div>
       </div>

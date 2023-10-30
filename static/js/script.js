@@ -1,3 +1,6 @@
+function redirigirAInicio() {
+  window.location.href = '/';
+}
 
 var valorOriginalCtte = "";
 

@@ -21,31 +21,23 @@
     <div class="container">
       <nav>
         <ul>
-          <li><a href="#" class="logo">
+          <li><a href="{% url 'cuentas_page' %}" class="logo">
             <img src="{% static 'main/media/logo.png' %}" alt="Logo">
             <span class="nav-item">Doca Banco</span>
           </a></li>
-          <li><a href="#">
+          <li><a href="{% url 'cuentas_page' %}">
             <i class="fas fa-wallet"></i>
             <span class="nav-item">Mis Cuentas</span>
           </a></li>
-          <li><a href="">
+          <li><a href="{% url 'transferencias_page' %}">
             <i class="fas fa-money-bill-transfer"></i>
             <span class="nav-item">Transferencias</span>
           </a></li>
-          <li><a href="">
+          <li><a href="{% url 'movimientos_page' %}">
             <i class="fas fa-money-bill-trend-up"></i>
             <span class="nav-item">Movimientos</span>
           </a></li>
-          <!--<li><a href="">
-            <i class="fas fa-chart-bar"></i>
-            <span class="nav-item">Informes</span>
-          </a></li>
-          <li><a href="">
-            <i class="fas fa-tasks"></i>
-            <span class="nav-item">Solicitudes</span>
-          </a></li>-->
-          <li><a href="">
+          <li><a href="{% url 'datos_page' %}">
             <i class="fas fa-user"></i>
             <span class="nav-item">Mis datos</span>
           </a></li>

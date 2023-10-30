@@ -45,7 +45,37 @@ def iniciar_sesion(request):
 
 
 def cuentas_page(request):
-    return render(request, 'cuentas.html')
+    return render(request, 'clients/cuentas.html')
+
+def transferencias_page(request):
+    return render(request, 'clients/transferencias.html')
+
+def movimientos_page(request):
+    return render(request, 'clients/movimientos.html')
+
+def datos_page(request):
+    return render(request, 'clients/datos.html')
+
+def nav_cuentas(request):
+    return render(request, 'pages/cuentas_desc.html')
+
+def nav_tarjetas(request):
+    return render(request, 'pages/tarjetas_desc.html')
+
+def nav_creditos(request):
+    return render(request, 'pages/creditos_desc.html')
+
+def nav_about(request):
+    return render(request, 'pages/about.html')
+
+def nav_contact(request):
+    return render(request, 'pages/contact.html')
+
+def foo_policitas(request):
+    return render(request, 'pages/politicas.html')
+
+def foo_terminos(request):
+    return render(request, 'pages/terminos_condiciones.html')
 
 
 def generate_secure_password(length=10):

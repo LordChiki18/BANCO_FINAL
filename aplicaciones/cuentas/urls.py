@@ -14,11 +14,22 @@ router.register(r'Cuentas', CuentasViews)
 
 urlpatterns = [
     path('', views.index, name='inicio'),
-    path('accounts/login/', views.iniciar_sesion, name='iniciar_sesion'),
+    path('login/', views.iniciar_sesion, name='iniciar_sesion'),
     path('registro/', views.registro_usuario, name='registro'),
-    path('cuentas/', views.cuentas_page, name='cuentas_page'),
+    path('home/cuentas/', views.nav_cuentas, name='cuentas_desc'),
+    path('home/tarjetas/', views.nav_tarjetas, name='tarjetas_desc'),
+    path('home/creditos/', views.nav_creditos, name='creditos_desc'),
+    path('home/about/', views.nav_about, name='about_desc'),
+    path('home/contacto/', views.nav_contact, name='contact_desc'),
+    path('home/politicas/', views.foo_policitas, name='politicas_desc'),
+    path('home/terminos/', views.foo_terminos, name='terminos_desc'),
+    path('clientes/cuentas', views.cuentas_page, name='cuentas_page'),
+    path('clientes/transferencias', views.transferencias_page, name='transferencias_page'),
+    path('clientes/movimientos', views.movimientos_page, name='movimientos_page'),
+    path('clientes/datos', views.datos_page, name='datos_page'),
     path('gestiones/', include(router.urls)),
     path('finanzas/transferencias', TransferenciasView.as_view()),
     path('cambiar-estado-cuenta/', CambiarEstadoCuentaView.as_view(), name='cambiar_estado'),
+    
 
 ]
