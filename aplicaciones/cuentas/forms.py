@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import Ciudad, Persona
+from .models import Ciudad, Persona, Cuentas
 
 
 class RegistroForm(forms.ModelForm):
@@ -25,3 +25,11 @@ class RegistroForm(forms.ModelForm):
         model = Persona
         fields = (
             'ciudad_id', 'nombre', 'apellido', 'tipo_documento', 'numero_documento', 'direccion', 'celular', 'email')
+
+
+class RegistroCuentasForm(forms.ModelForm):
+    class Meta:
+        model = Cuentas
+        fields = (
+            'tipo_cuenta', 'moneda', 'saldo'
+        )
