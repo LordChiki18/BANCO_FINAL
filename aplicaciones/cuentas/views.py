@@ -14,10 +14,14 @@ from aplicaciones.cuentas.serializers import (CiudadSerializer, PersonaSerialize
 from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
-
 from .forms import RegistroForm, RegistroCuentasForm
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 import random
 import string
+import xlwt
+from .models import Movimientos
 
 
 # Create your views here.
@@ -314,3 +318,59 @@ class CambiarEstadoCuentaView(APIView):
                             status=status.HTTP_200_OK)
         except Cuentas.DoesNotExist:
             return Response({'error': 'La cuenta no existe'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+def reporte_movimientos_cuenta(request, cuenta_id):
+    data = Movimientos.objects.filter(cuenta_id=cuenta_id)  # Aplica la condición de filtro
+
+    # Parámetro para determinar si se debe generar un PDF o un XLS
+    format_type = request.GET.get('format', 'pdf')
+
+    if format_type == 'pdf':
+        template_path = 'reporte.html'  # Crea una plantilla HTML para el PDF
+
+        # Renderiza la plantilla
+        template = get_template(template_path)
+        context = {'data': data}
+        html = template.render(context)
+
+        # Crea una respuesta HTTP para el PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="movimientos_{cuenta_id}.pdf"'
+
+        # Genera el PDF a partir de la plantilla HTML
+        pisa_status = pisa.CreatePDF(html, dest=response)
+        if pisa_status.err:
+            return HttpResponse('Error al generar el PDF', content_type='text/plain')
+
+        return response
+    elif format_type == 'xls':
+        # Crear un libro de trabajo de Excel
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Movimientos')  # Nombre de la hoja de Excel
+
+        # Definir el encabezado de las columnas
+        row_num = 0
+        columns = ['Fecha Movimiento', 'Tipo Movimiento', 'Monto Movimiento', 'Cuenta Origen', 'Cuenta Destino']
+
+        for col_num, column_title in enumerate(columns):
+            ws.write(row_num, col_num, column_title)
+
+        # Llenar la hoja con los datos filtrados
+        for row in data:
+            row_num += 1
+            row_data = [row.fecha_movimiento, row.tipo_movimiento, row.monto_movimiento, row.cuenta_origen, row.cuenta_destino]
+
+            for col_num, cell_value in enumerate(row_data):
+                ws.write(row_num, col_num, cell_value)
+
+        # Crea una respuesta HTTP para el XLS
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = f'attachment; filename="movimientos_{cuenta_id}.xls'
+
+        # Guardar el libro de trabajo de Excel en la respuesta HTTP
+        wb.save(response)
+
+        return response
+    else:
+        return HttpResponse('Formato no válido', content_type='text/plain')        
