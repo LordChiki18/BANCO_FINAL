@@ -1,6 +1,8 @@
 import secrets
 from decimal import InvalidOperation, Decimal
-from django.shortcuts import render, redirect
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -10,9 +12,9 @@ from rest_framework.views import APIView
 from aplicaciones.cuentas.serializers import (CiudadSerializer, PersonaSerializer, ClienteSerializer,
                                               CuentasSerializer)
 from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
-from .forms import RegistroForm
+from .forms import RegistroForm, RegistroCuentasForm
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
@@ -28,56 +30,74 @@ def index(request):
     return render(request, 'index.html')
 
 
-def iniciar_sesion(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        try:
-            user = Persona.objects.get(custom_username=username)  # Obtén al usuario por su email
-        except Persona.DoesNotExist:
-            user = None
-
-        if user is not None and user.check_password(password):
-            login(request, user)
-            return redirect(
-                'cuentas_page')  # Redirecciona a la página "cuentas.html" (ajusta el nombre de la URL según tus rutas).
-        else:
-            error_message = "Usuario o contraseña incorrectos"
-            return render(request, 'registration/login.html', {'error_message': error_message})
-
-    return render(request, 'registration/login.html')
-
-
+@login_required
 def cuentas_page(request):
-    return render(request, 'clients/cuentas.html')
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=persona)
+    cuenta = Cuentas.objects.filter(cliente_id=cliente)# .first()
 
+    # if cuenta is not None:
+    #     nombre_cliente = persona.nombre
+    #     apellido_cliente = persona.apellido
+    #     nro_cuenta = cuenta.nro_cuenta
+    #     saldo = cuenta.saldo
+    #
+    # else:
+    #     nombre_cliente = persona.nombre
+    #     apellido_cliente = persona.apellido
+    #     nro_cuenta = None
+    #     saldo = None
+
+    context = {
+        'persona': persona,
+        'cliente': cliente,
+        'cuentas': cuenta,
+    }
+
+    return render(request, 'clients/cuentas.html', context)
+
+
+@login_required
 def transferencias_page(request):
     return render(request, 'clients/transferencias.html')
 
+
+@login_required
 def movimientos_page(request):
     return render(request, 'clients/movimientos.html')
 
+
+@login_required
 def datos_page(request):
     return render(request, 'clients/datos.html')
 
+
+@login_required
 def nav_cuentas(request):
     return render(request, 'pages/cuentas_desc.html')
 
+
+@login_required
 def nav_tarjetas(request):
     return render(request, 'pages/tarjetas_desc.html')
 
+
+@login_required
 def nav_creditos(request):
     return render(request, 'pages/creditos_desc.html')
+
 
 def nav_about(request):
     return render(request, 'pages/about.html')
 
+
 def nav_contact(request):
     return render(request, 'pages/contact.html')
 
+
 def foo_policitas(request):
     return render(request, 'pages/politicas.html')
+
 
 def foo_terminos(request):
     return render(request, 'pages/terminos_condiciones.html')
@@ -141,6 +161,52 @@ def registro_usuario(request):
     return render(request, 'registration/registro.html', {'form': form})
 
 
+def iniciar_sesion(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, custom_username=username, password=password)
+
+        if user is not None and user.check_password(password):
+            login(request, user)
+            return redirect('cuentas_page')  # Redirige al usuario a la vista de cuentas
+
+        else:
+            error_message = "Usuario o contraseña incorrectos"
+            return render(request, 'registration/login.html', {'error_message': error_message})
+
+    return render(request, 'registration/login.html')
+
+
+def cerrar_sesion(request):
+    logout(request)  # Cierra la sesión del usuario actual
+    return redirect('inicio')  # Redirige al usuario a la página de inicio u otra página de tu elección
+
+
+@login_required
+def solicitar_cuenta(request):
+    if request.method == 'POST':
+        form = RegistroCuentasForm(request.POST)
+        if form.is_valid():
+            cuenta = form.save(commit=False)
+
+            # Asegúrate de que el cliente exista y esté relacionado con el usuario
+            cliente, creado = Cliente.objects.get_or_create(persona_id=request.user)
+
+            # Asigna el cliente a la cuenta
+            cuenta.cliente_id = cliente
+
+            # Guarda la cuenta en la base de datos
+            cuenta.save()
+
+            return redirect('cuentas_page')
+    else:
+        form = RegistroCuentasForm()
+
+    return render(request, 'registration/registro_cuentas.html', {'form': form})
+
+
 class CiudadViews(viewsets.ModelViewSet):
     queryset = Ciudad.objects.all()
     permission_classes = [IsAuthenticated]
@@ -172,7 +238,7 @@ class TransferenciasView(APIView):
         nro_cuenta_origen = request.data.get('nro_cuenta_origen')
         nro_cuenta_destino = request.data.get('nro_cuenta_destino')
         monto = request.data.get('monto')
-        canal = request.data.get('canal')
+        # canal = request.data.get('canal')
 
         # Validaciones
         if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
@@ -222,7 +288,7 @@ class TransferenciasView(APIView):
                                    monto_movimiento=monto,
                                    cuenta_origen=nro_cuenta_origen,
                                    cuenta_destino=nro_cuenta_destino,
-                                   canal=canal)
+                                   canal='Web')
 
         Movimientos.objects.create(cuenta_id=cuenta_destino,
                                    tipo_movimiento='CRE',
@@ -231,7 +297,8 @@ class TransferenciasView(APIView):
                                    monto_movimiento=monto,
                                    cuenta_origen=nro_cuenta_origen,
                                    cuenta_destino=nro_cuenta_destino,
-                                   canal=canal)
+                                   canal='Web')
+
         return Response({'message': 'Transferencia realizada con éxito'},
                         status=status.HTTP_200_OK)
 

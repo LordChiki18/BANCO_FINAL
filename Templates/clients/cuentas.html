@@ -3,15 +3,15 @@
 <span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
   <html lang="es">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles_dashboard.css' %}">
     <link rel="icon" href="{% static 'main/media/favicon.ico' %}" type="image/x-icon">
     <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
+            href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
     />
     <title>Banco DOCAP</title>
-    <!-- Font Awesome Cdn Link -->
+      <!-- Font Awesome Cdn Link -->
     <script src="https://kit.fontawesome.com/818ed1e0c5.js" crossorigin="anonymous"></script>
     <script src="{% static 'js/script.js' %}"></script>
 
@@ -41,7 +41,7 @@
             <i class="fas fa-user"></i>
             <span class="nav-item">Mis datos</span>
           </a></li>
-          <li><a href="" class="logout">
+          <li><a href="{% url 'cerrar_sesion' %}" class="logout">
             <i class="fas fa-sign-out-alt"></i>
             <span class="nav-item">Cerrar Sesion</span>
           </a></li>
@@ -56,39 +56,24 @@
             <!--<img src="{% static 'main/media/logo.jpeg' %}">-->
             <br>
             <h4>
-              Hola Juan Torres!</h4>
+              Hola {{ persona.nombre }} {{ persona.apellido }}!</h4>
             <p>Como puede tu banco ayudarte hoy?</p>
           </div>
         <div class="main-skills">
-          <div class="card">
-            <i class="fas fa-money-check-dollar"></i>
-            <h3>Cuenta Corriente</h3>
-            <p>Nro.: 95939050</p>
-            <h3 id="amountCtte">7.000.000 Gs.</h3>
-            <button id="hideAmountCtte" onclick="ocultarMontoCtte()">Ocultar monto</button>
-          </div>
-          <div class="card">
-            <i class="fas fa-vault"></i>
-            <h3>Caja de Ahorro</h3>
-            <p>Nro.: 40550343</p>
-            <h3 id="amountCaja">12.500.000 Gs.</h3>
-            <button id="hideAmountCaja" onclick="ocultarMontoCaja()">Ocultar monto</button>
-          </div>
-         <div class="course-box">
-             <!-- <ul>
-                <li class="active">Tarjeta de Debito</li>
-                <li>Pendientes</li>
-                <li>Canceladas</li>
-              </ul>-->
-              <div class="course">
-                <div class="box">
-                  <h3>Tarjeta de Debito - MasterCard</h3>
-                  <p>**** 0136</p>
-                  <button>Ver Datos Completos</button>
-                  <i class="fa-brands fa-cc-mastercard"></i>
-                </div>
-              </div>
-            </div>
+          {% if cuentas %}
+              {% for cuenta in cuentas %}
+                  <div class="card"><i class="fas fa-money-check-dollar"></i>
+                    <h3>{{ cuenta.tipo_cuenta }}</h3>
+                    <p>Nro.: {{ cuenta.nro_cuenta }}</p>
+                    <h3 id="amountCtte">{{ cuenta.saldo }} {{ cuenta.moneda }}</h3>
+                    <button id="hideAmountCtte{{ cuenta.nro_cuenta }}"
+                            onclick="ocultarMontoCtte({{ cuenta.nro_cuenta }})">Ocultar monto</button>
+                  </div>
+              {% endfor %}
+          {% else %}
+              <p>No tienes cuentas. ¿Deseas crear una cuenta?</p>
+              <a href="{% url 'solicitar_cuenta' %}" class="create-account-button">Crear Cuenta</a>
+          {% endif %}
         </div>
       </div>
       </section>
