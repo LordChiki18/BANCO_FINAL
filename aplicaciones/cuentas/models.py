@@ -270,6 +270,7 @@ class Movimientos(models.Model):
         ('Crédito', 'Crédito'),
         ('Débito', 'Débito'),
     ))
+    concepto = models.CharField(max_length=30, blank=True)
     saldo_anterior = models.DecimalField(max_digits=10, decimal_places=2)
     saldo_actual = models.DecimalField(max_digits=10, decimal_places=2)
     monto_movimiento = models.DecimalField(max_digits=10, decimal_places=2)
