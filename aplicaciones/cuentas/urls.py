@@ -15,7 +15,9 @@ router.register(r'Cuentas', CuentasViews)
 urlpatterns = [
     path('', views.index, name='inicio'),
     path('login/', views.iniciar_sesion, name='iniciar_sesion'),
+    path('logout/', views.cerrar_sesion, name='cerrar_sesion'),
     path('registro/', views.registro_usuario, name='registro'),
+    path('solicitar-cuenta/', views.solicitar_cuenta, name='solicitar_cuenta'),
     path('home/cuentas/', views.nav_cuentas, name='cuentas_desc'),
     path('home/tarjetas/', views.nav_tarjetas, name='tarjetas_desc'),
     path('home/creditos/', views.nav_creditos, name='creditos_desc'),
@@ -30,6 +32,6 @@ urlpatterns = [
     path('gestiones/', include(router.urls)),
     path('finanzas/transferencias', TransferenciasView.as_view()),
     path('cambiar-estado-cuenta/', CambiarEstadoCuentaView.as_view(), name='cambiar_estado'),
-    
+
 
 ]

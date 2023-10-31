@@ -2,6 +2,8 @@ import random
 import string
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 # Modelo para la tabla CIUDAD
@@ -145,7 +147,7 @@ class Persona(AbstractBaseUser, PermissionsMixin):
         ('Pendiente', 'Pendiente'),
         ('Suspendido', 'Suspendido'),
         ('En revisión', 'En revisión'),
-    ), default='En revisión')
+    ), default='Activo')
     custom_username = models.CharField(max_length=30, unique=True, null=True, blank=True)
     objects = PersonaManager()
 
@@ -176,6 +178,15 @@ class Persona(AbstractBaseUser, PermissionsMixin):
             # Genera el username a partir de la primera letra del nombre y número de documento
             self.custom_username = f"{self.nombre[0]}{self.numero_documento}"
         super().save(*args, **kwargs)
+
+
+@receiver(post_save, sender=Persona)
+def crear_cliente(sender, instance, created, **kwargs):
+    if created:
+        # Verifica si se ha creado una nueva instancia de Persona
+        Cliente.objects.create(persona_id=instance,
+                               calificacion='Sin Calificacion',
+                               estado='Activo')
 
 
 # Modelo para la tabla CLIENTE
@@ -248,13 +259,13 @@ class Cuentas(models.Model):
         ('Suspendida', 'Suspendida'),
         ('En revisión', 'En revisión'),
         ('En mora', 'En mora'),
-    ))
+    ), default='Activa')
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
-    costo_mantenimiento = models.DecimalField(max_digits=10, decimal_places=2)
-    promedio_acreditacion = models.DecimalField(max_digits=10, decimal_places=2)
+    costo_mantenimiento = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    promedio_acreditacion = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     moneda = models.CharField(choices=(
-        ('Guaraní', 'Guaraní'),
-        ('Dolares_Americanos', 'Dolares_Americanos'),
+        ('Gs', 'Guaraní'),
+        ('USD', 'Dolares_Americanos'),
     ))
 
     def __str__(self):
@@ -278,4 +289,4 @@ class Movimientos(models.Model):
     canal = models.CharField(choices=(
         ('App', 'Aplicacion'),
         ('Web', 'Pagina'),
-    ))
+    ), default='Web')
