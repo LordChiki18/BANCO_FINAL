@@ -69,10 +69,14 @@
 
                 <button onclick="mostrarFechas()">Buscar</button>
                 <p>Descargar Extracto:</p>
-                <button id="exportarXLSX">XLSX</button>
-                <script src="{% static 'js/exportarxlsx.js' %}"></script>
-                <button id="exportarCSV">CSV</button>
-                <script src="{% static 'js/exportarcsv.js' %}"></script>
+                <form action="{% url 'reporte_movimientos' cuenta_id=cuenta_id %}" method="get">
+                  <label for="format">Seleccione el formato:</label>
+                  <select id="format" name="format">
+                      <option value="pdf">PDF</option>
+                      <option value="xls">XLS</option>
+                  </select>
+                  <button type="submit">Generar Informe</button>
+                </form>
             </div>
             <p id="resultados"></p>
           <table id="tablaDatos">
