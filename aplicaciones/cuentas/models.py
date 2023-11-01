@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
+
 # Modelo para la tabla CIUDAD
 class Ciudad(models.Model):
     ciudad_id = models.AutoField(primary_key=True)
@@ -212,6 +213,22 @@ class Cliente(models.Model):
 
     def __str__(self):
         return f"{self.persona_id}"
+
+
+# esta es la supuesta relacion
+class RelacionCliente(models.Model):
+    cliente_propietario = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='relaciones_propietario')
+    cliente_registrado = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='relaciones_registrado')
+    email = models.EmailField()
+    nro_cuenta = models.PositiveIntegerField()
+    nombre = models.CharField(max_length=255)
+    apellido = models.CharField(max_length=255)
+    tipo_documento = models.CharField(choices=(
+        ('Pasaporte', 'Pasaporte'),
+        ('RUC', 'RUC'),
+        ('CI', 'CI'),
+    ))
+    numero_documento = models.CharField(max_length=255, unique=True)
 
 
 # Modelo para la tabla CUENTAS
