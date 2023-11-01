@@ -414,3 +414,96 @@ def reporte_movimientos_cuenta(request, cuenta_id):
         return response
     else:
         return HttpResponse('Formato no válido', content_type='text/plain')        
+
+class DepositoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        nro_cuenta_origen = request.data.get('nro_cuenta_origen')
+        nro_cuenta_destino = request.data.get('nro_cuenta_destino')
+        monto = request.data.get('monto')
+        # canal = request.data.get('canal')
+
+        # Validaciones
+        if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
+            return Response({'error': 'La solicitud no contiene los datos necesarios'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            monto = Decimal(monto)
+        except InvalidOperation:
+            return Response({'error', 'El monto a depositar es inválido'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
+        cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+
+        if cuenta_destino.estado == 'Bloqueada':
+            return Response({'error': 'La cuenta de destino está bloqueada, no se puede realizar el deposito'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        saldo_anterior_destino = cuenta_destino.saldo
+        saldo_actual_destino = saldo_anterior_destino + monto
+
+        # Realizar el deposito
+        cuenta_destino.saldo = saldo_actual_destino
+        cuenta_destino.save()
+
+        Movimientos.objects.create(cuenta_id=cuenta_destino,
+                                   tipo_movimiento='CRE',
+                                   saldo_anterior=saldo_anterior_destino,
+                                   saldo_actual=saldo_actual_destino,
+                                   monto_movimiento=monto,
+                                   cuenta_origen=nro_cuenta_origen,
+                                   cuenta_destino=nro_cuenta_destino,
+                                   canal='Web')
+
+        return Response({'message': 'Deposito realizado con éxito'},
+                        status=status.HTTP_200_OK)
+    
+class RetiroView(APIView):
+        permission_classes = [IsAuthenticated]
+
+        def post(self, request):
+            nro_cuenta_origen = request.data.get('nro_cuenta_origen')
+            nro_cuenta_destino = request.data.get('nro_cuenta_destino')
+            monto = request.data.get('monto')
+
+            # Validaciones
+            if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
+                return Response({'error': 'La solicitud no contiene los datos necesarios'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                monto = Decimal(monto)
+            except InvalidOperation:
+                return Response({'error', 'El monto a extraer es inválido'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
+            cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+
+            if cuenta_origen.estado == 'Bloqueada':
+                return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la extracción'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            saldo_anterior_origen = cuenta_origen.saldo
+            saldo_actual_origen = saldo_anterior_origen - monto
+
+            # Realizar la extraccion
+            cuenta_origen.saldo = saldo_actual_origen
+
+            cuenta_origen.save()
+
+            # Registrar el movimiento
+            Movimientos.objects.create(cuenta_id=cuenta_origen,
+                                    tipo_movimiento='DEB',
+                                    saldo_anterior=saldo_anterior_origen,
+                                    saldo_actual=saldo_actual_origen,
+                                    monto_movimiento=monto,
+                                    cuenta_origen=nro_cuenta_origen,
+                                    cuenta_destino=nro_cuenta_destino,
+                                    canal='Web')
+
+            return Response({'message': 'Extracción realizada con éxito'},
+                            status=status.HTTP_200_OK)
