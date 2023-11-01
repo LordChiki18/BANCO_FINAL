@@ -2,13 +2,9 @@ import secrets
 from decimal import InvalidOperation, Decimal
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import viewsets, status, permissions
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from django.shortcuts import render, redirect
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -21,7 +17,6 @@ from .forms import RegistroForm, RegistroCuentasForm, RegistroContactoForm
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-import random
 import string
 import xlwt
 from .models import Movimientos
