@@ -3,19 +3,22 @@ from decimal import InvalidOperation, Decimal
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework import viewsets, status
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets, status, permissions
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from aplicaciones.cuentas.serializers import (CiudadSerializer, PersonaSerializer, ClienteSerializer,
                                               CuentasSerializer)
-from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos
+from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos, RelacionCliente
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 
-from .forms import RegistroForm, RegistroCuentasForm
+from .forms import RegistroForm, RegistroCuentasForm, RegistroContactoForm
 import random
 import string
 
@@ -30,19 +33,7 @@ def index(request):
 def cuentas_page(request):
     persona = Persona.objects.get(custom_username=request.user)
     cliente = Cliente.objects.get(persona_id=persona)
-    cuenta = Cuentas.objects.filter(cliente_id=cliente)# .first()
-
-    # if cuenta is not None:
-    #     nombre_cliente = persona.nombre
-    #     apellido_cliente = persona.apellido
-    #     nro_cuenta = cuenta.nro_cuenta
-    #     saldo = cuenta.saldo
-    #
-    # else:
-    #     nombre_cliente = persona.nombre
-    #     apellido_cliente = persona.apellido
-    #     nro_cuenta = None
-    #     saldo = None
+    cuenta = Cuentas.objects.filter(cliente_id=cliente)
 
     context = {
         'persona': persona,
@@ -55,7 +46,18 @@ def cuentas_page(request):
 
 @login_required
 def transferencias_page(request):
-    return render(request, 'clients/transferencias.html')
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=persona)
+    listaCliente = RelacionCliente.objects.filter(cliente_propietario=cliente)
+    cuenta = Cuentas.objects.filter(cliente_id=cliente)
+
+    context = {
+        'persona': persona,
+        'cliente': cliente,
+        'relacion': listaCliente,
+        'cuenta': cuenta
+    }
+    return render(request, 'clients/transferencias.html', context)
 
 
 @login_required
@@ -128,13 +130,11 @@ def registro_usuario(request):
         if form.is_valid():
             print("Formulario válido")
             user = form.save(commit=False)  # No guardes el usuario en la base de datos todavía
-            print(f"Datos del usuario: {user.__dict__}")
             user.is_staff = False
             user.is_superuser = False
             generated_password = generate_secure_password()  # Genera una contraseña aleatoria
             user.set_password(generated_password)  # Configura la contraseña generada
             user.save()  # Ahora guarda el usuario en la base de datos
-            print(f"Datos del usuario: {user.__dict__}")
             login(request, user)
             print("Usuario guardado en la base de datos")
 
@@ -201,6 +201,51 @@ def solicitar_cuenta(request):
         form = RegistroCuentasForm()
 
     return render(request, 'registration/registro_cuentas.html', {'form': form})
+
+
+@login_required
+def registrar_contacto(request):
+    if request.method == 'POST':
+        form = RegistroContactoForm(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            nro_cuenta = cleaned_data['nro_cuenta']
+            tipo_documento = cleaned_data['tipo_documento']
+            numero_documento = cleaned_data['numero_documento']
+            email = cleaned_data['email']
+            nombre = cleaned_data['nombre']
+            apellido = cleaned_data['apellido']
+
+            try:
+                persona = Persona.objects.get(
+                    email=email, nombre=nombre, apellido=apellido,
+                    tipo_documento=tipo_documento, numero_documento=numero_documento
+                )
+
+                try:
+                    cliente_propietario = Cliente.objects.get(persona_id=request.user)
+                    cliente_registrado = Cliente.objects.get(persona_id=persona)
+                    cuentas = Cuentas.objects.get(cliente_id=cliente_registrado, nro_cuenta=nro_cuenta)
+                    # Si la cuenta existe y coincide, procede
+                    contacto = form.save(commit=False)
+                    contacto.cliente_propietario = cliente_propietario
+                    contacto.cliente_registrado = cliente_registrado
+                    contacto.save()
+                    return redirect('cuentas_page')
+
+                except Cuentas.DoesNotExist:
+                    # Si la cuenta no coincide, muestra un mensaje de error
+                    error_message = "La cuenta no existe..."
+                    return render(request, 'registration/registro_contacto.html', {'error_message': error_message})
+
+            except Persona.DoesNotExist:
+                # Si la persona no existe, muestra un mensaje de error
+                error_message = "La persona no existe..."
+                return render(request, 'registration/registro_contacto.html', {'error_message': error_message})
+    else:
+        form = RegistroContactoForm()
+
+    return render(request, 'registration/registro_contacto.html', {'form': form})
 
 
 class CiudadViews(viewsets.ModelViewSet):
