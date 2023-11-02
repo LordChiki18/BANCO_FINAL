@@ -210,6 +210,7 @@ def registrar_contacto(request):
             cleaned_data = form.cleaned_data
             nro_cuenta = cleaned_data['nro_cuenta']
             tipo_documento = cleaned_data['tipo_documento']
+            tipo_cuenta = cleaned_data['tipo_cuenta']
             numero_documento = cleaned_data['numero_documento']
             email = cleaned_data['email']
             nombre = cleaned_data['nombre']
@@ -224,7 +225,8 @@ def registrar_contacto(request):
                 try:
                     cliente_propietario = Cliente.objects.get(persona_id=request.user)
                     cliente_registrado = Cliente.objects.get(persona_id=persona)
-                    cuentas = Cuentas.objects.get(cliente_id=cliente_registrado, nro_cuenta=nro_cuenta)
+                    cuentas = Cuentas.objects.get(cliente_id=cliente_registrado, nro_cuenta=nro_cuenta,
+                                                  tipo_cuenta=tipo_cuenta)
                     # Si la cuenta existe y coincide, procede
                     contacto = form.save(commit=False)
                     contacto.cliente_propietario = cliente_propietario
@@ -244,7 +246,15 @@ def registrar_contacto(request):
     else:
         form = RegistroContactoForm()
 
-    return render(request, 'registration/registro_contacto.html', {'form': form})
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=request.user)
+    contactos = RelacionCliente.objects.filter(cliente_propietario=cliente)
+    cuentacontacto = Cuentas.objects.filter(cliente_id=cliente)
+
+    return render(request, 'registration/registro_contacto.html', {'form': form, 'persona': persona,
+                                                                   'cliente': cliente,
+                                                                   'contactos': contactos,
+                                                                   'cuentacontacto': cuentacontacto})
 
 
 class CiudadViews(viewsets.ModelViewSet):
@@ -306,6 +316,20 @@ class TransferenciasView(APIView):
             return Response({'error', 'Saldo Insuficiente'},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        if cuenta_origen.tipo_cuenta == 'Cuenta Corriente' and cuenta_destino.tipo_cuenta == 'Cuenta de Ahorro':
+            return Response({'error': 'La cuenta de destino es de Ahorro, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif cuenta_origen.tipo_cuenta == 'Cuenta de Ahorro' and cuenta_destino.tipo_cuenta == 'Cuenta Corriente':
+            return Response({'error': 'La cuenta de destino es Corriente, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if cuenta_origen.moneda == 'Gs' and cuenta_destino.moneda == 'USD':
+            return Response({'error': 'La cuenta de destino esta en Dolares, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif cuenta_origen.moneda == 'USD' and cuenta_destino.moneda == 'Gs':
+            return Response({'error': 'La cuenta de destino es Corriente, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         # Calcular saldos anteriores y actuales
         saldo_anterior_origen = cuenta_origen.saldo
         saldo_actual_origen = saldo_anterior_origen - monto
@@ -358,7 +382,7 @@ class CambiarEstadoCuentaView(APIView):
                             status=status.HTTP_200_OK)
         except Cuentas.DoesNotExist:
             return Response({'error': 'La cuenta no existe'}, status=status.HTTP_404_NOT_FOUND)
-        
+
 
 def reporte_movimientos_cuenta(request, cuenta_id):
     data = Movimientos.objects.filter(cuenta_id=cuenta_id)  # Aplica la condición de filtro
@@ -399,7 +423,8 @@ def reporte_movimientos_cuenta(request, cuenta_id):
         # Llenar la hoja con los datos filtrados
         for row in data:
             row_num += 1
-            row_data = [row.fecha_movimiento, row.tipo_movimiento, row.monto_movimiento, row.cuenta_origen, row.cuenta_destino]
+            row_data = [row.fecha_movimiento, row.tipo_movimiento, row.monto_movimiento, row.cuenta_origen,
+                        row.cuenta_destino]
 
             for col_num, cell_value in enumerate(row_data):
                 ws.write(row_num, col_num, cell_value)
@@ -413,7 +438,8 @@ def reporte_movimientos_cuenta(request, cuenta_id):
 
         return response
     else:
-        return HttpResponse('Formato no válido', content_type='text/plain')        
+        return HttpResponse('Formato no válido', content_type='text/plain')
+
 
 class DepositoView(APIView):
     permission_classes = [IsAuthenticated]
@@ -460,50 +486,51 @@ class DepositoView(APIView):
 
         return Response({'message': 'Deposito realizado con éxito'},
                         status=status.HTTP_200_OK)
-    
+
+
 class RetiroView(APIView):
-        permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-        def post(self, request):
-            nro_cuenta_origen = request.data.get('nro_cuenta_origen')
-            nro_cuenta_destino = request.data.get('nro_cuenta_destino')
-            monto = request.data.get('monto')
+    def post(self, request):
+        nro_cuenta_origen = request.data.get('nro_cuenta_origen')
+        nro_cuenta_destino = request.data.get('nro_cuenta_destino')
+        monto = request.data.get('monto')
 
-            # Validaciones
-            if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
-                return Response({'error': 'La solicitud no contiene los datos necesarios'},
-                                status=status.HTTP_400_BAD_REQUEST)
+        # Validaciones
+        if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
+            return Response({'error': 'La solicitud no contiene los datos necesarios'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-            try:
-                monto = Decimal(monto)
-            except InvalidOperation:
-                return Response({'error', 'El monto a extraer es inválido'},
-                                status=status.HTTP_400_BAD_REQUEST)
+        try:
+            monto = Decimal(monto)
+        except InvalidOperation:
+            return Response({'error', 'El monto a extraer es inválido'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-            cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
-            cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+        cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
+        cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
 
-            if cuenta_origen.estado == 'Bloqueada':
-                return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la extracción'},
-                                status=status.HTTP_400_BAD_REQUEST)
+        if cuenta_origen.estado == 'Bloqueada':
+            return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la extracción'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-            saldo_anterior_origen = cuenta_origen.saldo
-            saldo_actual_origen = saldo_anterior_origen - monto
+        saldo_anterior_origen = cuenta_origen.saldo
+        saldo_actual_origen = saldo_anterior_origen - monto
 
-            # Realizar la extraccion
-            cuenta_origen.saldo = saldo_actual_origen
+        # Realizar la extraccion
+        cuenta_origen.saldo = saldo_actual_origen
 
-            cuenta_origen.save()
+        cuenta_origen.save()
 
-            # Registrar el movimiento
-            Movimientos.objects.create(cuenta_id=cuenta_origen,
-                                    tipo_movimiento='DEB',
-                                    saldo_anterior=saldo_anterior_origen,
-                                    saldo_actual=saldo_actual_origen,
-                                    monto_movimiento=monto,
-                                    cuenta_origen=nro_cuenta_origen,
-                                    cuenta_destino=nro_cuenta_destino,
-                                    canal='Web')
+        # Registrar el movimiento
+        Movimientos.objects.create(cuenta_id=cuenta_origen,
+                                   tipo_movimiento='DEB',
+                                   saldo_anterior=saldo_anterior_origen,
+                                   saldo_actual=saldo_actual_origen,
+                                   monto_movimiento=monto,
+                                   cuenta_origen=nro_cuenta_origen,
+                                   cuenta_destino=nro_cuenta_destino,
+                                   canal='Web')
 
-            return Response({'message': 'Extracción realizada con éxito'},
-                            status=status.HTTP_200_OK)
+        return Response({'message': 'Extracción realizada con éxito'},
+                        status=status.HTTP_200_OK)

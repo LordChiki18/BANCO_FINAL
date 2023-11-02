@@ -6,7 +6,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-
 # Modelo para la tabla CIUDAD
 class Ciudad(models.Model):
     ciudad_id = models.AutoField(primary_key=True)
@@ -221,6 +220,10 @@ class RelacionCliente(models.Model):
     cliente_registrado = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='relaciones_registrado')
     email = models.EmailField()
     nro_cuenta = models.PositiveIntegerField()
+    tipo_cuenta = models.CharField(choices=(
+        ('Cuenta Corriente', 'Cuenta Corriente'),
+        ('Cuenta de Ahorro', 'Cuenta de Ahorro'),
+    ))
     nombre = models.CharField(max_length=255)
     apellido = models.CharField(max_length=255)
     tipo_documento = models.CharField(choices=(
@@ -265,7 +268,6 @@ class Cuentas(models.Model):
     tipo_cuenta = models.CharField(choices=(
         ('Cuenta Corriente', 'Cuenta Corriente'),
         ('Cuenta de Ahorro', 'Cuenta de Ahorro'),
-        ('Cuenta Conjunta', 'Cuenta Conjunta'),
     ))
     estado = models.CharField(choices=(
         ('Activa', 'Activa'),
@@ -308,8 +310,8 @@ class Movimientos(models.Model):
         ('Web', 'Pagina'),
     ), default='Web')
 
+
 class CuentaAnexada(models.Model):
-    
     cuenta_anexada_id = models.AutoField(primary_key=True)
     cuenta_id = models.ForeignKey(Cuentas, on_delete=models.CASCADE)
     numero_cuenta = models.PositiveIntegerField(unique=True)
@@ -326,7 +328,5 @@ class CuentaAnexada(models.Model):
     ))
     documento = models.CharField(max_length=255)
 
-
     def __str__(self):
         return f"{self.numero_cuenta} - {self.nombre}+{self.apellido}"
-    
