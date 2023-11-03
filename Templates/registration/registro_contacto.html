@@ -1,98 +1,48 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="main-skills">
-        <div class="card">
-            <form action="{% url 'registrar_contacto' %}" method="post" id="contacto-form">
-                <h4>Comienza a organizarte con la ayuda del mejor Banco</h4>
-                {% csrf_token %}
-                {{ form.non_field_errors }}
-                <br>
-                <div class="form-group">
-                    <p>Tipo de documento</p>
-                    {{ form.tipo_documento }}
-                </div>
-                <div class="form-group">
-                    <p>Numero de documento</p>
-                    {{ form.numero_documento }}
-                </div>
-                <div class="form-group">
-                    <p>Email</p>
-                    {{ form.email }}
-                </div>
-                <div class="form-group">
-                    <p>Tipo de cuenta</p>
-                    {{ form.tipo_cuenta }}
-                </div>
-                <div class="form-group">
-                    <p>Numero de cuenta</p>
-                    {{ form.nro_cuenta }}
-                </div>
-                <div class="form-group">
-                    <p>Nombre</p>
-                    {{ form.nombre }}
-                </div>
-                <div class="form-group">
-                    <p>Apellido</p>
-                    {{ form.apellido }}
-                </div>
-                <br>
-                {{ error_message }}
-                <button class="btn form__btn" type="submit">Registrar</button>
-            </form>
+    <section class="main">
+        <div class="main-top">
+            <h1>Registrar Contactos</h1>
         </div>
-    </div>
-    <div class="contact-list">
-        <h2>Contactos Registrados</h2>
-        <ul>
-            {% for contacto in contactos %}
-                <li>
-                    <strong>{{ contacto.numero_documento }} - {{ contacto.nombre }} {{ contacto.apellido }}</strong><br>
-                    Email: {{ contacto.email }}<br>
-                    Número de Cuenta: {{ contacto.nro_cuenta }}<br>
-                    Tipo de Cuenta: {{ contacto.tipo_cuenta }}
-                </li>
-            {% empty %}
-                <p>No tienes contactos registrados.</p>
-            {% endfor %}
-        </ul>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Escucha el envío del formulario
-            $("#contacto-form").submit(function (event) {
-                event.preventDefault(); // Previene el envío del formulario por defecto
-
-                var form = $(this);
-
-                $.ajax({
-                    type: form.attr("method"),
-                    url: form.attr("action"),
-                    data: form.serialize(),
-                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                    success: function (data) {
-                        if (data && data.success) {
-                            alert('Registro exitoso');
-                            form[0].reset();
-                        } else {
-                            alert('Error inesperado al registrar. Por favor, inténtalo de nuevo más tarde.');
-                            form[0].reset();
-                        }
-                    },
-                    error: function (xhr, textStatus, errorThrown) {
-                        if (xhr.status === 400) {
-                            var errorData = JSON.parse(xhr.responseText);
-                            alert('Error al registrar: ' + errorData.error); // Muestra un mensaje de error específico del servidor
-                            form[0].reset();
-                        } else {
-                            alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.'); // Muestra un mensaje de error general
-                            form[0].reset();
-                        }
-                    }
-                });
-            });
-        });
-    </script>
-    </div>
+        <div class="main">
+            <div class="main-skills-contactos">
+                <div class="card">
+                    <form action="{% url 'registrar_contacto' %}" method="post" id="contacto-form">
+                        <h4>Comienza a organizarte con la ayuda del mejor Banco</h4>
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        <br>
+                        <div class="form-group">
+                            <p>Tipo de documento</p>
+                            {{ form.tipo_documento }}
+                        </div>
+                        <div class="form-group">
+                            <p>Numero de documento</p>
+                            {{ form.numero_documento }}
+                        </div>
+                        <div class="form-group">
+                            <p>Email</p>
+                            {{ form.email }}
+                        </div>
+                        <div class="form-group">
+                            <p>Numero de cuenta</p>
+                            {{ form.nro_cuenta }}
+                        </div>
+                        <div class="form-group">
+                            <p>Nombre</p>
+                            {{ form.nombre }}
+                        </div>
+                        <div class="form-group">
+                            <p>Apellido</p>
+                            {{ form.apellido }}
+                        </div>
+                        <br>
+                        {{ error_message }}
+                        <button class="btn form__btn" type="submit">Registrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock content %}

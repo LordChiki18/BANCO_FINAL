@@ -1,123 +1,59 @@
-{% load static %}
+{% extends 'base.html' %}
 
-<span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
-  <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles_dashboard.css' %}">
-    <link rel="icon" href="{% static 'main/media/favicon.ico' %}" type="image/x-icon">
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
-    />
-    <title>Banco DOCAP</title>
-    <!-- Font Awesome Cdn Link -->
-    <script src="https://kit.fontawesome.com/818ed1e0c5.js" crossorigin="anonymous"></script>
-    <script src="{% static 'js/script.js' %}"></script>
-    <script src="{% static 'js/xlsx.js' %}"></script>
-    <script src="{% static 'js/jspdf.js' %}"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
-  </head>
-  <body>
-    <div class="container">
-      <nav>
-        <ul>
-          <li><a href="{% url 'cuentas_page' %}" class="logo">
-            <img src="{% static 'main/media/logo.png' %}" alt="Logo">
-            <span class="nav-item">Doca Banco</span>
-          </a></li>
-          <li><a href="{% url 'cuentas_page' %}">
-            <i class="fas fa-wallet"></i>
-            <span class="nav-item">Mis Cuentas</span>
-          </a></li>
-          <li><a href="{% url 'transferencias_page' %}">
-            <i class="fas fa-money-bill-transfer"></i>
-            <span class="nav-item">Transferencias</span>
-          </a></li>
-          <li><a href="{% url 'movimientos_page' %}">
-            <i class="fas fa-money-bill-trend-up"></i>
-            <span class="nav-item">Movimientos</span>
-          </a></li>
-          <li><a href="{% url 'datos_page' %}">
-            <i class="fas fa-user"></i>
-            <span class="nav-item">Mis datos</span>
-          </a></li>
-          <li><a href="" class="logout">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="nav-item">Cerrar Sesion</span>
-          </a></li>
-        </ul>
-      </nav>
-     <section class="main">
+{% block content %}
+    <section class="main">
         <div class="main-top">
-          <h1>  Movimientos</h1>
+            <h1> Movimientos</h1>
         </div>
         <div class="history_lists">
-          <div class="list1">
-            <div class="row">
-              <label for="selectAccount">Origen:</label>
-                <select id="selectAccount">
-                    <option value="cuenta0"> Todos...</option>
-                    <option value="cuenta1">Cuenta Corriente</option>
-                    <option value="cuenta2">Caja de Ahorro</option>
-                </select>
-                <label for="fechaDesde">Fecha Desde:</label>
-                <input type="date" id="fechaDesde">
+            <div class="list1">
+                <form method="GET" action="" id="filter-form"> <!-- Agregamos un formulario -->
+                    <div class="row">
+                        <label for="selectAccount">Origen:</label>
+                        <select id="selectAccount" name="cuenta_origen">
+                            <option value=""> Todos...</option>
+                            <option value="cuenta1">Cuenta Corriente</option>
+                            <option value="cuenta2">Caja de Ahorro</option>
+                        </select>
+                        <label for="fechaDesde">Fecha Desde:</label>
+                        <input type="date" id="fechaDesde" name="fecha_desde">
 
-                <label for="fechaHasta">Hasta:</label>
-                <input type="date" id="fechaHasta">
+                        <label for="fechaHasta">Hasta:</label>
+                        <input type="date" id="fechaHasta" name="fecha_hasta">
 
-                <button onclick="mostrarFechas()">Buscar</button>
-                <p>Descargar Extracto:</p>
-                <form action="{% url 'reporte_movimientos' cuenta_id=cuenta_id %}" method="get">
-                  <label for="format">Seleccione el formato:</label>
-                  <select id="format" name="format">
-                      <option value="pdf">PDF</option>
-                      <option value="xls">XLS</option>
-                  </select>
-                  <button type="submit">Generar Informe</button>
+                        <button type="submit">Filtrar</button> <!-- Botón de envío -->
+                    </div>
                 </form>
+                <p id="resultados"></p>
+                <table id="tablaDatos">
+                    <thead>
+                        <tr>
+                            <th>#Nro</th>
+                            <th>Fecha</th>
+                            <th>Cuenta Origen</th>
+                            <th>Cuenta Destino</th>
+                            <th>Tipo</th>
+                            <th>Monto movimiento</th>
+                            <th>Saldo anterior</th>
+                            <th>Saldo actual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movimiento in movimientos %}
+                            <tr>
+                                <td>{{ movimiento.movimiento_id }}</td>
+                                <td>{{ movimiento.fecha_movimiento }}</td>
+                                <td>{{ movimiento.cuenta_origen|floatformat:0 }}</td>
+                                <td>{{ movimiento.cuenta_destino|floatformat:0 }}</td>
+                                <td>{{ movimiento.tipo_movimiento }}</td>
+                                <td>{{ movimiento.monto_movimiento }}</td>
+                                <td>{{ movimiento.saldo_anterior }}</td>
+                                <td>{{ movimiento.saldo_actual }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <p id="resultados"></p>
-          <table id="tablaDatos">
-            <thead>
-              <tr>
-                <th>#Nro</th>
-                <th>Fecha</th>
-                <th>Comprobante</th>
-                <th>Detalle</th>
-                <th>Tipo</th>
-                <th>Debito</th>
-                <th>Credito</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>17382</td>
-                <td>12, Oct, 2023</td>
-                <td>48930020</td>
-                <td>Pedidos ya</td>
-                <td>Transaccion Tarjeta</td>
-                <td>-43.000 Gs.</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>17383</td>
-                <td>11, Oct, 2023</td>
-                <td>193023940</td>
-                <td>Transf. recibida</td>
-                <td>Transferencia SIPAP</td>
-                <td></td>
-                <td>450.000 Gs.</td>
-              </tr>
-            </tbody>
-          </table>
-          </div>
         </div>
-      </section>
-    </div>
-  </body>
-  </html></span>
-
-
-
+    </section>
+{% endblock content %}

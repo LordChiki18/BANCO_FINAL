@@ -41,5 +41,5 @@ class RegistroContactoForm(forms.ModelForm):
     class Meta:
         model = RelacionCliente
         fields = (
-            'nro_cuenta', 'email', 'nombre', 'apellido', 'tipo_documento', 'numero_documento', 'tipo_cuenta'
+            'nro_cuenta', 'email', 'nombre', 'apellido', 'tipo_documento', 'numero_documento',
         )
