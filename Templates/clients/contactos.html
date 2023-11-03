@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <section class="main">
+        <div class="main-top">
+            <h1>Registrar Contactos</h1>
+            <a href="{% url 'registrar_contacto' %}" class="button-form">Registrar Contacto</a>
+        </div>
+        <div class="main">
+            <div class="contact-list">
+                <h2>Contactos Registrados</h2>
+                <ul>
+                    {% for contacto in contactos %}
+                        <li>
+                            <strong>{{ contacto.numero_documento }}
+                                - {{ contacto.nombre }} {{ contacto.apellido }}</strong><br>
+                            Email: {{ contacto.email }}<br>
+                            Número de Cuenta: {{ contacto.nro_cuenta }}<br>
+                            Tipo de Cuenta: {{ contacto.tipo_cuenta }}
+                            Tipo de Moneda: {{ contacto.moneda }}
+                        </li>
+                    {% empty %}
+                        <p>No tienes contactos registrados.</p>
+                        <a href="{% url 'registrar_contacto' %}">Registrar Contacto</a>
+                    {% endfor %}
+                </ul>
+            </div>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+                $(document).ready(function () {
+                    $("#contacto-form").submit(function (event) {
+                        event.preventDefault();
+
+                        var form = $(this);
+
+                        $.ajax({
+                            type: form.attr("method"),
+                            url: form.attr("action"),
+                            data: form.serialize(),
+                            headers: {"X-CSRFToken": $('input[name="csrfmiddlewaretoken"]').val()},
+                            success: function (data) {
+                                if (data.success) {
+                                    alert('Registro exitoso');
+                                    form[0].reset();
+                                } else {
+                                    alert('Error al registrar: ' + data.error);
+                                    form[0].reset();
+                                }
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.');
+                            }
+                        });
+                    });
+                });
+            </script>
+        </div>
+    </section>
+{% endblock content %}

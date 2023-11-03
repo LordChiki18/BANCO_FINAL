@@ -7,19 +7,16 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from aplicaciones.cuentas.serializers import (CiudadSerializer, PersonaSerializer, ClienteSerializer,
                                               CuentasSerializer)
 from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos, RelacionCliente
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from .forms import RegistroForm, RegistroCuentasForm, RegistroContactoForm
-from django.http import HttpResponse
-from django.template.loader import get_template
-from xhtml2pdf import pisa
+from django.http import HttpResponse, JsonResponse
 import string
-import xlwt
-from .models import Movimientos
+from datetime import datetime
+from django.db.models import Q
 
 
 # Create your views here.
@@ -60,8 +57,52 @@ def transferencias_page(request):
 
 
 @login_required
+def contactos_page(request):
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=request.user)
+    contactos = RelacionCliente.objects.filter(cliente_propietario=cliente)
+    cuentacontacto = Cuentas.objects.filter(cliente_id=cliente)
+
+    context = {
+        'persona': persona,
+        'cliente': cliente,
+        'contactos': contactos,
+        'cuentacontacto': cuentacontacto,
+    }
+
+    return render(request, 'clients/contactos.html', context)
+
+
+@login_required
 def movimientos_page(request):
-    return render(request, 'clients/movimientos.html')
+    cuenta_origen = request.GET.get("cuenta_origen")
+    fecha_desde = request.GET.get("fecha_desde")
+    fecha_hasta = request.GET.get("fecha_hasta")
+
+    # Obtén todas las cuentas del usuario
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=persona)
+    cuentas = Cuentas.objects.filter(cliente_id=cliente)
+
+    # Inicializa la consulta para obtener los movimientos
+    movimientos = Movimientos.objects.filter(cuenta_id__in=cuentas)
+
+    # Aplica los filtros si se proporcionan
+    if cuenta_origen:
+        movimientos = movimientos.filter(cuenta_origen=cuenta_origen)
+
+    if fecha_desde:
+        fecha_desde = datetime.strptime(fecha_desde, "%Y-%m-%d").date()
+        movimientos = movimientos.filter(fecha_movimiento__gte=fecha_desde)
+
+    if fecha_hasta:
+        fecha_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%d").date()
+        movimientos = movimientos.filter(fecha_movimiento__lte=fecha_hasta)
+
+    context = {
+        'movimientos': movimientos,
+    }
+    return render(request, 'clients/movimientos.html', context)
 
 
 @login_required
@@ -186,7 +227,6 @@ def solicitar_cuenta(request):
         if form.is_valid():
             cuenta = form.save(commit=False)
 
-            # Asegúrate de que el cliente exista y esté relacionado con el usuario
             cliente, creado = Cliente.objects.get_or_create(persona_id=request.user)
 
             # Asigna el cliente a la cuenta
@@ -210,7 +250,6 @@ def registrar_contacto(request):
             cleaned_data = form.cleaned_data
             nro_cuenta = cleaned_data['nro_cuenta']
             tipo_documento = cleaned_data['tipo_documento']
-            tipo_cuenta = cleaned_data['tipo_cuenta']
             numero_documento = cleaned_data['numero_documento']
             email = cleaned_data['email']
             nombre = cleaned_data['nombre']
@@ -225,36 +264,32 @@ def registrar_contacto(request):
                 try:
                     cliente_propietario = Cliente.objects.get(persona_id=request.user)
                     cliente_registrado = Cliente.objects.get(persona_id=persona)
-                    cuentas = Cuentas.objects.get(cliente_id=cliente_registrado, nro_cuenta=nro_cuenta,
-                                                  tipo_cuenta=tipo_cuenta)
+                    cuentas = Cuentas.objects.get(cliente_id=cliente_registrado, nro_cuenta=nro_cuenta)
+                    tipo_cuenta = cuentas.tipo_cuenta
+                    moneda = cuentas.moneda
                     # Si la cuenta existe y coincide, procede
                     contacto = form.save(commit=False)
                     contacto.cliente_propietario = cliente_propietario
                     contacto.cliente_registrado = cliente_registrado
+                    contacto.tipo_cuenta = tipo_cuenta
+                    contacto.moneda = moneda
                     contacto.save()
-                    return redirect('cuentas_page')
 
+                    return JsonResponse({'success': True})
                 except Cuentas.DoesNotExist:
                     # Si la cuenta no coincide, muestra un mensaje de error
-                    error_message = "La cuenta no existe..."
-                    return render(request, 'registration/registro_contacto.html', {'error_message': error_message})
+                    return JsonResponse({'success': False, 'error': "La cuenta no existe..."})
 
             except Persona.DoesNotExist:
                 # Si la persona no existe, muestra un mensaje de error
-                error_message = "La persona no existe..."
-                return render(request, 'registration/registro_contacto.html', {'error_message': error_message})
-    else:
-        form = RegistroContactoForm()
+                return JsonResponse({'success': False, 'error': "La persona no existe..."})
 
-    persona = Persona.objects.get(custom_username=request.user)
-    cliente = Cliente.objects.get(persona_id=request.user)
-    contactos = RelacionCliente.objects.filter(cliente_propietario=cliente)
-    cuentacontacto = Cuentas.objects.filter(cliente_id=cliente)
+        else:
+            return JsonResponse({'success': False, 'error': "El formulario no es válido"})
 
-    return render(request, 'registration/registro_contacto.html', {'form': form, 'persona': persona,
-                                                                   'cliente': cliente,
-                                                                   'contactos': contactos,
-                                                                   'cuentacontacto': cuentacontacto})
+    form = RegistroContactoForm()
+
+    return render(request, 'registration/registro_contacto.html', {'form': form})
 
 
 class CiudadViews(viewsets.ModelViewSet):
@@ -288,7 +323,6 @@ class TransferenciasView(APIView):
         nro_cuenta_origen = request.data.get('nro_cuenta_origen')
         nro_cuenta_destino = request.data.get('nro_cuenta_destino')
         monto = request.data.get('monto')
-        # canal = request.data.get('canal')
 
         # Validaciones
         if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
@@ -384,61 +418,100 @@ class CambiarEstadoCuentaView(APIView):
             return Response({'error': 'La cuenta no existe'}, status=status.HTTP_404_NOT_FOUND)
 
 
-def reporte_movimientos_cuenta(request, cuenta_id):
-    data = Movimientos.objects.filter(cuenta_id=cuenta_id)  # Aplica la condición de filtro
+# def reporte_movimientos_cuenta(request):
+#     cuenta_id = Cuentas.objects.filter(cliente_id=Persona.objects.get(persona_id=request.user))
+#     data = Movimientos.objects.filter(cuenta_id=cuenta_id)  # Aplica la condición de filtro
+#
+#     # Parámetro para determinar si se debe generar un PDF o un XLS
+#     format_type = request.GET.get('format', 'pdf')
+#
+#     if format_type == 'pdf':
+#         template_path = 'reporte.html'  # Crea una plantilla HTML para el PDF
+#
+#         # Renderiza la plantilla
+#         template = get_template(template_path)
+#         context = {'data': data}
+#         html = template.render(context)
+#
+#         # Crea una respuesta HTTP para el PDF
+#         response = HttpResponse(content_type='application/pdf')
+#         response['Content-Disposition'] = f'attachment; filename="movimientos_{cuenta_id}.pdf"'
+#
+#         # Genera el PDF a partir de la plantilla HTML
+#         pisa_status = pisa.CreatePDF(html, dest=response)
+#         if pisa_status.err:
+#             return HttpResponse('Error al generar el PDF', content_type='text/plain')
+#
+#         return response
+#     elif format_type == 'xls':
+#         # Crear un libro de trabajo de Excel
+#         wb = xlwt.Workbook(encoding='utf-8')
+#         ws = wb.add_sheet('Movimientos')  # Nombre de la hoja de Excel
+#
+#         # Definir el encabezado de las columnas
+#         row_num = 0
+#         columns = ['Fecha Movimiento', 'Tipo Movimiento', 'Monto Movimiento', 'Cuenta Origen', 'Cuenta Destino']
+#
+#         for col_num, column_title in enumerate(columns):
+#             ws.write(row_num, col_num, column_title)
+#
+#         # Llenar la hoja con los datos filtrados
+#         for row in data:
+#             row_num += 1
+#             row_data = [row.fecha_movimiento, row.tipo_movimiento, row.monto_movimiento, row.cuenta_origen,
+#                         row.cuenta_destino]
+#
+#             for col_num, cell_value in enumerate(row_data):
+#                 ws.write(row_num, col_num, cell_value)
+#
+#         # Crea una respuesta HTTP para el XLS
+#         response = HttpResponse(content_type='application/ms-excel')
+#         response['Content-Disposition'] = f'attachment; filename="movimientos_{cuenta_id}.xls'
+#
+#         # Guardar el libro de trabajo de Excel en la respuesta HTTP
+#         wb.save(response)
+#
+#         return response
+#     else:
+#         return HttpResponse('Formato no válido', content_type='text/plain')
 
-    # Parámetro para determinar si se debe generar un PDF o un XLS
-    format_type = request.GET.get('format', 'pdf')
-
-    if format_type == 'pdf':
-        template_path = 'reporte.html'  # Crea una plantilla HTML para el PDF
-
-        # Renderiza la plantilla
-        template = get_template(template_path)
-        context = {'data': data}
-        html = template.render(context)
-
-        # Crea una respuesta HTTP para el PDF
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="movimientos_{cuenta_id}.pdf"'
-
-        # Genera el PDF a partir de la plantilla HTML
-        pisa_status = pisa.CreatePDF(html, dest=response)
-        if pisa_status.err:
-            return HttpResponse('Error al generar el PDF', content_type='text/plain')
-
-        return response
-    elif format_type == 'xls':
-        # Crear un libro de trabajo de Excel
-        wb = xlwt.Workbook(encoding='utf-8')
-        ws = wb.add_sheet('Movimientos')  # Nombre de la hoja de Excel
-
-        # Definir el encabezado de las columnas
-        row_num = 0
-        columns = ['Fecha Movimiento', 'Tipo Movimiento', 'Monto Movimiento', 'Cuenta Origen', 'Cuenta Destino']
-
-        for col_num, column_title in enumerate(columns):
-            ws.write(row_num, col_num, column_title)
-
-        # Llenar la hoja con los datos filtrados
-        for row in data:
-            row_num += 1
-            row_data = [row.fecha_movimiento, row.tipo_movimiento, row.monto_movimiento, row.cuenta_origen,
-                        row.cuenta_destino]
-
-            for col_num, cell_value in enumerate(row_data):
-                ws.write(row_num, col_num, cell_value)
-
-        # Crea una respuesta HTTP para el XLS
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = f'attachment; filename="movimientos_{cuenta_id}.xls'
-
-        # Guardar el libro de trabajo de Excel en la respuesta HTTP
-        wb.save(response)
-
-        return response
-    else:
-        return HttpResponse('Formato no válido', content_type='text/plain')
+# def reporte_movimientos_cuenta(request):
+#     # Obtén todas las cuentas del usuario
+#     cuentas = Cuentas.objects.filter(cliente_id=Persona.objects.get(persona_id=request.user))
+#
+#     if cuentas:
+#         response = HttpResponse(content_type='application/pdf')
+#         response['Content-Disposition'] = 'attachment; filename="movimientos.pdf"'
+#
+#         # Crear un documento PDF
+#         doc = SimpleDocTemplate(response, pagesize=letter)
+#         elements = []
+#
+#         styles = getSampleStyleSheet()
+#         styleN = styles['Normal']
+#
+#         for cuenta in cuentas:
+#             data = Movimientos.objects.filter(cuenta_id=cuenta)
+#
+#             # Crear un informe PDF para esta cuenta
+#             elements.append(Paragraph('Informe de Movimientos para la Cuenta: ' + str(cuenta.id), styleN))
+#
+#             # Agregar los datos de movimientos a la tabla
+#             table_data = [
+#                 ['Fecha Movimiento', 'Tipo Movimiento', 'Monto Movimiento', 'Cuenta Origen', 'Cuenta Destino']]
+#             for movimiento in data:
+#                 table_data.append([movimiento.fecha_movimiento, movimiento.tipo_movimiento, movimiento.monto_movimiento,
+#                                    movimiento.cuenta_origen, movimiento.cuenta_destino])
+#
+#             # Crear una tabla para mostrar los datos
+#             from reportlab.platypus import Table
+#             t = Table(table_data)
+#             elements.append(t)
+#
+#         doc.build(elements)
+#         return response
+#     else:
+#         return HttpResponse('No se encontraron cuentas', content_type='text/plain')
 
 
 class DepositoView(APIView):
