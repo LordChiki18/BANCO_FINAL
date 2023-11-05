@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: gestion_bancaria
+      POSTGRES_USER: superbanco
+      POSTGRES_PASSWORD: '#@yd1_423/*'
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    container_name: django-app
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres-db
