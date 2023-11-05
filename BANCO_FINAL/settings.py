@@ -98,8 +98,7 @@ ROOT_URLCONF = 'BANCO_FINAL.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'Templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,7 +122,7 @@ DATABASES = {
         'NAME': 'gestion_bancaria',
         'USER': 'superbanco',
         'PASSWORD': '#@yd1_423/*',
-        'HOST': 'localhost',  # O la dirección de tu servidor PostgreSQL
+        'HOST': 'postgres-db',  # Utiliza el nombre del servicio del contenedor PostgreSQL
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
 }
