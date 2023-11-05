@@ -5,10 +5,10 @@ FROM python:3.11
 WORKDIR /BANCO_FINAL
 
 # Copy the requirements file into the container
-COPY requeriments.txt /BANCO_FINAL/
+COPY requirements.txt /BANCO_FINAL/
 
 # Install the required dependencies
-RUN pip install -r requeriments.txt
+RUN pip install -r requirements.txt
 
 # Copy the current directory contents into the container
 COPY . /BANCO_FINAL/
