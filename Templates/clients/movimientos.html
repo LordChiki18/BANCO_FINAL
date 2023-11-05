@@ -6,54 +6,36 @@
             <h1> Movimientos</h1>
         </div>
         <div class="history_lists">
-            <div class="list1">
-                <form method="GET" action="" id="filter-form"> <!-- Agregamos un formulario -->
-                    <div class="row">
-                        <label for="selectAccount">Origen:</label>
-                        <select id="selectAccount" name="cuenta_origen">
-                            <option value=""> Todos...</option>
-                            <option value="cuenta1">Cuenta Corriente</option>
-                            <option value="cuenta2">Caja de Ahorro</option>
-                        </select>
-                        <label for="fechaDesde">Fecha Desde:</label>
-                        <input type="date" id="fechaDesde" name="fecha_desde">
-
-                        <label for="fechaHasta">Hasta:</label>
-                        <input type="date" id="fechaHasta" name="fecha_hasta">
-
-                        <button type="submit">Filtrar</button> <!-- Botón de envío -->
-                    </div>
-                </form>
-                <p id="resultados"></p>
-                <table id="tablaDatos">
-                    <thead>
-                        <tr>
-                            <th>#Nro</th>
-                            <th>Fecha</th>
-                            <th>Cuenta Origen</th>
-                            <th>Cuenta Destino</th>
-                            <th>Tipo</th>
-                            <th>Monto movimiento</th>
-                            <th>Saldo anterior</th>
-                            <th>Saldo actual</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for movimiento in movimientos %}
-                            <tr>
-                                <td>{{ movimiento.movimiento_id }}</td>
-                                <td>{{ movimiento.fecha_movimiento }}</td>
-                                <td>{{ movimiento.cuenta_origen|floatformat:0 }}</td>
-                                <td>{{ movimiento.cuenta_destino|floatformat:0 }}</td>
-                                <td>{{ movimiento.tipo_movimiento }}</td>
-                                <td>{{ movimiento.monto_movimiento }}</td>
-                                <td>{{ movimiento.saldo_anterior }}</td>
-                                <td>{{ movimiento.saldo_actual }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <p id="resultados"></p>
+            <table id="tablaDatos">
+                <thead>
+                <tr>
+                    <th>#Nro</th>
+                    <th>Fecha</th>
+                    <th>Cuenta Origen</th>
+                    <th>Cuenta Destino</th>
+                    <th>Tipo</th>
+                    <th>Monto movimiento</th>
+                    <th>Saldo anterior</th>
+                    <th>Saldo actual</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for movimiento in movimientos %}
+                    <tr>
+                        <td>{{ movimiento.movimiento_id }}</td>
+                        <td>{{ movimiento.fecha_movimiento }}</td>
+                        <td>{{ movimiento.cuenta_origen|floatformat:0 }}</td>
+                        <td>{{ movimiento.cuenta_destino|floatformat:0 }}</td>
+                        <td>{{ movimiento.tipo_movimiento }}</td>
+                        <td>{{ movimiento.monto_movimiento }}</td>
+                        <td>{{ movimiento.saldo_anterior }}</td>
+                        <td>{{ movimiento.saldo_actual }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
         </div>
     </section>
 {% endblock content %}

@@ -28,6 +28,12 @@ class CuentasSerializer(serializers.ModelSerializer):
 
 
 class MovimientosSerializer(serializers.ModelSerializer):
+    saldo_anterior = serializers.FloatField(required=False)
+    saldo_actual = serializers.FloatField(required=False)
+    monto_movimiento = serializers.FloatField(required=False)
+    cuenta_origen = serializers.CharField(required=False)
+    cuenta_destino = serializers.CharField(required=False)
+
     class Meta:
         model = Movimientos
         fields = '__all__'

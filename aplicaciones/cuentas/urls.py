@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from aplicaciones.cuentas import views
 from aplicaciones.cuentas.views import CiudadViews, PersonaViews, ClienteViews, CuentasViews, index, iniciar_sesion, \
-    cuentas_page, TransferenciasView, CambiarEstadoCuentaView, DepositoView, RetiroView
+    cuentas_page, TransferenciasViews, CambiarEstadoCuentaViews, DepositoViews, RetiroView, MovimientosViews
 
 router = DefaultRouter()
 
@@ -11,6 +11,7 @@ router.register(r'Ciudad', CiudadViews)
 router.register(r'Persona', PersonaViews)
 router.register(r'Cliente', ClienteViews)
 router.register(r'Cuentas', CuentasViews)
+router.register(r'Movimientos', MovimientosViews)
 
 urlpatterns = [
     path('', views.index, name='inicio'),
@@ -30,12 +31,13 @@ urlpatterns = [
     path('clientes/contactos', views.contactos_page, name='contactos_page'),
     path('clientes/transferencias', views.transferencias_page, name='transferencias_page'),
     path('clientes/movimientos', views.movimientos_page, name='movimientos_page'),
+    path('clientes/deposito', views.deposito_page, name='deposito_page'),
+    path('clientes/retiro', views.retiro_page, name='retiro_page'),
     path('clientes/datos', views.datos_page, name='datos_page'),
     path('gestiones/', include(router.urls)),
-    path('finanzas/transferencias', TransferenciasView.as_view(), name='realizar-transferencia'),
-    path('cambiar-estado-cuenta/', CambiarEstadoCuentaView.as_view(), name='cambiar_estado'),
-    # path('reporte_movimientos/', views.reporte_movimientos_cuenta, name='reporte_movimientos'),
-    path('deposito/', DepositoView.as_view(), name='realizar-deposito'),
-    path('extraccion/', RetiroView.as_view(), name="realizar-retiro"),
+    path('finanzas/transferencias', TransferenciasViews.as_view(), name='realizar-transferencia'),
+    path('cambiar-estado-cuenta/', CambiarEstadoCuentaViews.as_view(), name='cambiar_estado'),
+    path('finanzas/deposito', DepositoViews.as_view(), name='realizar-deposito'),
+    path('finanzas/extraccion', RetiroView.as_view(), name="realizar-retiro"),
 
 ]

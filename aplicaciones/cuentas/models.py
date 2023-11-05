@@ -135,7 +135,7 @@ class Persona(AbstractBaseUser, PermissionsMixin):
         ('Pasaporte', 'Pasaporte'),
         ('RUC', 'RUC'),
         ('CI', 'CI'),
-    ))
+    ), default='CI')
     numero_documento = models.CharField(max_length=255, unique=True)
     direccion = models.CharField(max_length=255)
     celular = models.CharField(max_length=255)
