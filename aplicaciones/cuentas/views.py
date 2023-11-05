@@ -1,14 +1,14 @@
 import secrets
 from decimal import InvalidOperation, Decimal
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from rest_framework import viewsets, status
+from django.utils import timezone
+from rest_framework import viewsets, status, generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from aplicaciones.cuentas.serializers import (CiudadSerializer, PersonaSerializer, ClienteSerializer,
-                                              CuentasSerializer)
+                                              CuentasSerializer, MovimientosSerializer)
 from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos, RelacionCliente
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
@@ -16,7 +16,8 @@ from .forms import RegistroForm, RegistroCuentasForm, RegistroContactoForm
 from django.http import HttpResponse, JsonResponse
 import string
 from datetime import datetime
-from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 
 # Create your views here.
@@ -57,6 +58,34 @@ def transferencias_page(request):
 
 
 @login_required
+def deposito_page(request):
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=persona)
+    cuenta = Cuentas.objects.filter(cliente_id=cliente)
+
+    context = {
+        'persona': persona,
+        'cliente': cliente,
+        'cuenta': cuenta
+    }
+    return render(request, 'clients/deposito.html', context)
+
+
+@login_required
+def retiro_page(request):
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=persona)
+    cuenta = Cuentas.objects.filter(cliente_id=cliente)
+
+    context = {
+        'persona': persona,
+        'cliente': cliente,
+        'cuenta': cuenta
+    }
+    return render(request, 'clients/retiro.html', context)
+
+
+@login_required
 def contactos_page(request):
     persona = Persona.objects.get(custom_username=request.user)
     cliente = Cliente.objects.get(persona_id=request.user)
@@ -75,7 +104,6 @@ def contactos_page(request):
 
 @login_required
 def movimientos_page(request):
-    cuenta_origen = request.GET.get("cuenta_origen")
     fecha_desde = request.GET.get("fecha_desde")
     fecha_hasta = request.GET.get("fecha_hasta")
 
@@ -87,19 +115,19 @@ def movimientos_page(request):
     # Inicializa la consulta para obtener los movimientos
     movimientos = Movimientos.objects.filter(cuenta_id__in=cuentas)
 
-    # Aplica los filtros si se proporcionan
-    if cuenta_origen:
-        movimientos = movimientos.filter(cuenta_origen=cuenta_origen)
-
     if fecha_desde:
-        fecha_desde = datetime.strptime(fecha_desde, "%Y-%m-%d").date()
+        # Analiza la fecha desde la entrada
+        fecha_desde = datetime.strptime(fecha_desde, "%Y-%m-%dT%H:%M")
         movimientos = movimientos.filter(fecha_movimiento__gte=fecha_desde)
 
     if fecha_hasta:
-        fecha_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%d").date()
+        # Analiza la fecha hasta la entrada
+        fecha_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%dT%H:%M")
         movimientos = movimientos.filter(fecha_movimiento__lte=fecha_hasta)
 
     context = {
+        'persona': persona,
+        'cliente': cliente,
         'movimientos': movimientos,
     }
     return render(request, 'clients/movimientos.html', context)
@@ -276,6 +304,7 @@ def registrar_contacto(request):
                     contacto.save()
 
                     return JsonResponse({'success': True})
+
                 except Cuentas.DoesNotExist:
                     # Si la cuenta no coincide, muestra un mensaje de error
                     return JsonResponse({'success': False, 'error': "La cuenta no existe..."})
@@ -285,38 +314,50 @@ def registrar_contacto(request):
                 return JsonResponse({'success': False, 'error': "La persona no existe..."})
 
         else:
-            return JsonResponse({'success': False, 'error': "El formulario no es válido"})
+            # Si el formulario no es válido, muestra un mensaje de error con los detalles de validación
+            errors = {field: errors[0] for field, errors in form.errors.items()}
+            return JsonResponse({'success': False, 'errors': errors})
 
     form = RegistroContactoForm()
-
     return render(request, 'registration/registro_contacto.html', {'form': form})
 
 
 class CiudadViews(viewsets.ModelViewSet):
     queryset = Ciudad.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = CiudadSerializer
 
 
 class PersonaViews(viewsets.ModelViewSet):
     queryset = Persona.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = PersonaSerializer
 
 
 class ClienteViews(viewsets.ModelViewSet):
     queryset = Cliente.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = ClienteSerializer
 
 
 class CuentasViews(viewsets.ModelViewSet):
     queryset = Cuentas.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = CuentasSerializer
 
 
-class TransferenciasView(APIView):
+class MovimientosViews(viewsets.ReadOnlyModelViewSet):
+    queryset = Movimientos.objects.all()
+    permission_classes = [permissions.IsAdminUser]
+    serializer_class = MovimientosSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = {
+        'cuenta_id': ['exact'],
+    }
+    ordering_fields = ['fecha_movimiento', 'monto_movimiento']
+
+
+class TransferenciasViews(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -401,8 +442,8 @@ class TransferenciasView(APIView):
                         status=status.HTTP_200_OK)
 
 
-class CambiarEstadoCuentaView(APIView):
-    permission_classes = [IsAuthenticated]
+class CambiarEstadoCuentaViews(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         nro_cuenta = request.data.get('nro_cuenta')
@@ -418,113 +459,16 @@ class CambiarEstadoCuentaView(APIView):
             return Response({'error': 'La cuenta no existe'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# def reporte_movimientos_cuenta(request):
-#     cuenta_id = Cuentas.objects.filter(cliente_id=Persona.objects.get(persona_id=request.user))
-#     data = Movimientos.objects.filter(cuenta_id=cuenta_id)  # Aplica la condición de filtro
-#
-#     # Parámetro para determinar si se debe generar un PDF o un XLS
-#     format_type = request.GET.get('format', 'pdf')
-#
-#     if format_type == 'pdf':
-#         template_path = 'reporte.html'  # Crea una plantilla HTML para el PDF
-#
-#         # Renderiza la plantilla
-#         template = get_template(template_path)
-#         context = {'data': data}
-#         html = template.render(context)
-#
-#         # Crea una respuesta HTTP para el PDF
-#         response = HttpResponse(content_type='application/pdf')
-#         response['Content-Disposition'] = f'attachment; filename="movimientos_{cuenta_id}.pdf"'
-#
-#         # Genera el PDF a partir de la plantilla HTML
-#         pisa_status = pisa.CreatePDF(html, dest=response)
-#         if pisa_status.err:
-#             return HttpResponse('Error al generar el PDF', content_type='text/plain')
-#
-#         return response
-#     elif format_type == 'xls':
-#         # Crear un libro de trabajo de Excel
-#         wb = xlwt.Workbook(encoding='utf-8')
-#         ws = wb.add_sheet('Movimientos')  # Nombre de la hoja de Excel
-#
-#         # Definir el encabezado de las columnas
-#         row_num = 0
-#         columns = ['Fecha Movimiento', 'Tipo Movimiento', 'Monto Movimiento', 'Cuenta Origen', 'Cuenta Destino']
-#
-#         for col_num, column_title in enumerate(columns):
-#             ws.write(row_num, col_num, column_title)
-#
-#         # Llenar la hoja con los datos filtrados
-#         for row in data:
-#             row_num += 1
-#             row_data = [row.fecha_movimiento, row.tipo_movimiento, row.monto_movimiento, row.cuenta_origen,
-#                         row.cuenta_destino]
-#
-#             for col_num, cell_value in enumerate(row_data):
-#                 ws.write(row_num, col_num, cell_value)
-#
-#         # Crea una respuesta HTTP para el XLS
-#         response = HttpResponse(content_type='application/ms-excel')
-#         response['Content-Disposition'] = f'attachment; filename="movimientos_{cuenta_id}.xls'
-#
-#         # Guardar el libro de trabajo de Excel en la respuesta HTTP
-#         wb.save(response)
-#
-#         return response
-#     else:
-#         return HttpResponse('Formato no válido', content_type='text/plain')
-
-# def reporte_movimientos_cuenta(request):
-#     # Obtén todas las cuentas del usuario
-#     cuentas = Cuentas.objects.filter(cliente_id=Persona.objects.get(persona_id=request.user))
-#
-#     if cuentas:
-#         response = HttpResponse(content_type='application/pdf')
-#         response['Content-Disposition'] = 'attachment; filename="movimientos.pdf"'
-#
-#         # Crear un documento PDF
-#         doc = SimpleDocTemplate(response, pagesize=letter)
-#         elements = []
-#
-#         styles = getSampleStyleSheet()
-#         styleN = styles['Normal']
-#
-#         for cuenta in cuentas:
-#             data = Movimientos.objects.filter(cuenta_id=cuenta)
-#
-#             # Crear un informe PDF para esta cuenta
-#             elements.append(Paragraph('Informe de Movimientos para la Cuenta: ' + str(cuenta.id), styleN))
-#
-#             # Agregar los datos de movimientos a la tabla
-#             table_data = [
-#                 ['Fecha Movimiento', 'Tipo Movimiento', 'Monto Movimiento', 'Cuenta Origen', 'Cuenta Destino']]
-#             for movimiento in data:
-#                 table_data.append([movimiento.fecha_movimiento, movimiento.tipo_movimiento, movimiento.monto_movimiento,
-#                                    movimiento.cuenta_origen, movimiento.cuenta_destino])
-#
-#             # Crear una tabla para mostrar los datos
-#             from reportlab.platypus import Table
-#             t = Table(table_data)
-#             elements.append(t)
-#
-#         doc.build(elements)
-#         return response
-#     else:
-#         return HttpResponse('No se encontraron cuentas', content_type='text/plain')
-
-
-class DepositoView(APIView):
+class DepositoViews(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        nro_cuenta_origen = request.data.get('nro_cuenta_origen')
+        nro_cuenta_origen = 0
         nro_cuenta_destino = request.data.get('nro_cuenta_destino')
         monto = request.data.get('monto')
-        # canal = request.data.get('canal')
 
         # Validaciones
-        if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
+        if not all([nro_cuenta_destino, monto]):
             return Response({'error': 'La solicitud no contiene los datos necesarios'},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -534,7 +478,6 @@ class DepositoView(APIView):
             return Response({'error', 'El monto a depositar es inválido'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
         cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
 
         if cuenta_destino.estado == 'Bloqueada':
@@ -566,11 +509,11 @@ class RetiroView(APIView):
 
     def post(self, request):
         nro_cuenta_origen = request.data.get('nro_cuenta_origen')
-        nro_cuenta_destino = request.data.get('nro_cuenta_destino')
+        nro_cuenta_destino = 0
         monto = request.data.get('monto')
 
         # Validaciones
-        if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
+        if not all([nro_cuenta_origen, monto]):
             return Response({'error': 'La solicitud no contiene los datos necesarios'},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -581,7 +524,6 @@ class RetiroView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
-        cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
 
         if cuenta_origen.estado == 'Bloqueada':
             return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la extracción'},

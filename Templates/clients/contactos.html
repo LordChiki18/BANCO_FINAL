@@ -25,35 +25,6 @@
                     {% endfor %}
                 </ul>
             </div>
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-            <script>
-                $(document).ready(function () {
-                    $("#contacto-form").submit(function (event) {
-                        event.preventDefault();
-
-                        var form = $(this);
-
-                        $.ajax({
-                            type: form.attr("method"),
-                            url: form.attr("action"),
-                            data: form.serialize(),
-                            headers: {"X-CSRFToken": $('input[name="csrfmiddlewaretoken"]').val()},
-                            success: function (data) {
-                                if (data.success) {
-                                    alert('Registro exitoso');
-                                    form[0].reset();
-                                } else {
-                                    alert('Error al registrar: ' + data.error);
-                                    form[0].reset();
-                                }
-                            },
-                            error: function (xhr, textStatus, errorThrown) {
-                                alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.');
-                            }
-                        });
-                    });
-                });
-            </script>
         </div>
     </section>
 {% endblock content %}
