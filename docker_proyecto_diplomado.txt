@@ -1,0 +1,27 @@
+PASO A PASO DE DOCKER
+
+1- INSTALAR DOCKER-DESKTOP + DOCKER-COMPOSE
+https://docs.docker.com/desktop/install/windows-install/ --windows
+https://docs.docker.com/desktop/install/mac-install/ --mac
+
+2- verificar desde ubunto la instalacion del mismo 
+
+	$ sudo systemctl status docker
+	si esta off entonces correr este comando 
+	$ sudo systemctl start docker
+
+	si hay algun error correr estos comandos
+	$sudo apt update (esto actualiza las librerias del ubuntu)
+	$sudo apt install apt-transport-https ca-certificates curl software-properties-common(instala dependencias)
+	$curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+	$echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	$sudo apt update (actualiza nuevamente las librerias ya con las dependencias del docker)
+	$ sudo apt install docker-ce (instala docker)
+	$ sudo systemctl start docker (inicia docker)
+	$ sudo systemctl status docker (verificar el estado del docker)
+
+3- Con el docker activo ejecutar en VC o pycharm 
+	docker-compose up --build (esto creara una imagen del docker)
+4- para parar el servicio ejecutar 
+	docker-compose down --build
+listo 
