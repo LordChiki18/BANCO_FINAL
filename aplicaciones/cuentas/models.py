@@ -214,6 +214,30 @@ class Cliente(models.Model):
         return f"{self.persona_id}"
 
 
+# esta es la supuesta relacion
+class RelacionCliente(models.Model):
+    cliente_propietario = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='relaciones_propietario')
+    cliente_registrado = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='relaciones_registrado')
+    email = models.EmailField()
+    nro_cuenta = models.PositiveIntegerField(unique=True)
+    tipo_cuenta = models.CharField(choices=(
+        ('Cuenta Corriente', 'Cuenta Corriente'),
+        ('Cuenta de Ahorro', 'Cuenta de Ahorro'),
+    ))
+    moneda = models.CharField(choices=(
+        ('Gs', 'Guaraní'),
+        ('USD', 'Dolares_Americanos'),
+    ))
+    nombre = models.CharField(max_length=255)
+    apellido = models.CharField(max_length=255)
+    tipo_documento = models.CharField(choices=(
+        ('Pasaporte', 'Pasaporte'),
+        ('RUC', 'RUC'),
+        ('CI', 'CI'),
+    ))
+    numero_documento = models.CharField(max_length=255)
+
+
 # Modelo para la tabla CUENTAS
 def generate_unique_number(length):
     # Genera un número aleatorio de la longitud especificada
@@ -248,7 +272,6 @@ class Cuentas(models.Model):
     tipo_cuenta = models.CharField(choices=(
         ('Cuenta Corriente', 'Cuenta Corriente'),
         ('Cuenta de Ahorro', 'Cuenta de Ahorro'),
-        ('Cuenta Conjunta', 'Cuenta Conjunta'),
     ))
     estado = models.CharField(choices=(
         ('Activa', 'Activa'),
@@ -290,26 +313,3 @@ class Movimientos(models.Model):
         ('App', 'Aplicacion'),
         ('Web', 'Pagina'),
     ), default='Web')
-
-class CuentaAnexada(models.Model):
-    
-    cuenta_anexada_id = models.AutoField(primary_key=True)
-    cuenta_id = models.ForeignKey(Cuentas, on_delete=models.CASCADE)
-    numero_cuenta = models.PositiveIntegerField(unique=True)
-    moneda = models.CharField(choices=(
-        ('Gs', 'Guaraní'),
-        ('USD', 'Dolares_Americanos'),
-    ))
-    nombre = models.CharField(max_length=255)
-    apellido = models.CharField(max_length=255)
-    tipo_documento = models.CharField(choices=(
-        ('Pasaporte', 'Pasaporte'),
-        ('RUC', 'RUC'),
-        ('CI', 'CI'),
-    ))
-    documento = models.CharField(max_length=255)
-
-
-    def __str__(self):
-        return f"{self.numero_cuenta} - {self.nombre}+{self.apellido}"
-    

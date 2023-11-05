@@ -2,25 +2,21 @@ import secrets
 from decimal import InvalidOperation, Decimal
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from rest_framework import viewsets, status
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from aplicaciones.cuentas.serializers import (CiudadSerializer, PersonaSerializer, ClienteSerializer,
                                               CuentasSerializer)
-from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos
+from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos, RelacionCliente
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
-from .forms import RegistroForm, RegistroCuentasForm
-from django.http import HttpResponse
-from django.template.loader import get_template
-import random
+from .forms import RegistroForm, RegistroCuentasForm, RegistroContactoForm
+from django.http import HttpResponse, JsonResponse
 import string
-import xlwt
-from .models import Movimientos
+from datetime import datetime
+from django.db.models import Q
 
 
 # Create your views here.
@@ -33,19 +29,7 @@ def index(request):
 def cuentas_page(request):
     persona = Persona.objects.get(custom_username=request.user)
     cliente = Cliente.objects.get(persona_id=persona)
-    cuenta = Cuentas.objects.filter(cliente_id=cliente)# .first()
-
-    # if cuenta is not None:
-    #     nombre_cliente = persona.nombre
-    #     apellido_cliente = persona.apellido
-    #     nro_cuenta = cuenta.nro_cuenta
-    #     saldo = cuenta.saldo
-    #
-    # else:
-    #     nombre_cliente = persona.nombre
-    #     apellido_cliente = persona.apellido
-    #     nro_cuenta = None
-    #     saldo = None
+    cuenta = Cuentas.objects.filter(cliente_id=cliente)
 
     context = {
         'persona': persona,
@@ -58,12 +42,67 @@ def cuentas_page(request):
 
 @login_required
 def transferencias_page(request):
-    return render(request, 'clients/transferencias.html')
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=persona)
+    listaCliente = RelacionCliente.objects.filter(cliente_propietario=cliente)
+    cuenta = Cuentas.objects.filter(cliente_id=cliente)
+
+    context = {
+        'persona': persona,
+        'cliente': cliente,
+        'relacion': listaCliente,
+        'cuenta': cuenta
+    }
+    return render(request, 'clients/transferencias.html', context)
+
+
+@login_required
+def contactos_page(request):
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=request.user)
+    contactos = RelacionCliente.objects.filter(cliente_propietario=cliente)
+    cuentacontacto = Cuentas.objects.filter(cliente_id=cliente)
+
+    context = {
+        'persona': persona,
+        'cliente': cliente,
+        'contactos': contactos,
+        'cuentacontacto': cuentacontacto,
+    }
+
+    return render(request, 'clients/contactos.html', context)
 
 
 @login_required
 def movimientos_page(request):
-    return render(request, 'clients/movimientos.html')
+    cuenta_origen = request.GET.get("cuenta_origen")
+    fecha_desde = request.GET.get("fecha_desde")
+    fecha_hasta = request.GET.get("fecha_hasta")
+
+    # Obtén todas las cuentas del usuario
+    persona = Persona.objects.get(custom_username=request.user)
+    cliente = Cliente.objects.get(persona_id=persona)
+    cuentas = Cuentas.objects.filter(cliente_id=cliente)
+
+    # Inicializa la consulta para obtener los movimientos
+    movimientos = Movimientos.objects.filter(cuenta_id__in=cuentas)
+
+    # Aplica los filtros si se proporcionan
+    if cuenta_origen:
+        movimientos = movimientos.filter(cuenta_origen=cuenta_origen)
+
+    if fecha_desde:
+        fecha_desde = datetime.strptime(fecha_desde, "%Y-%m-%d").date()
+        movimientos = movimientos.filter(fecha_movimiento__gte=fecha_desde)
+
+    if fecha_hasta:
+        fecha_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%d").date()
+        movimientos = movimientos.filter(fecha_movimiento__lte=fecha_hasta)
+
+    context = {
+        'movimientos': movimientos,
+    }
+    return render(request, 'clients/movimientos.html', context)
 
 
 @login_required
@@ -131,13 +170,11 @@ def registro_usuario(request):
         if form.is_valid():
             print("Formulario válido")
             user = form.save(commit=False)  # No guardes el usuario en la base de datos todavía
-            print(f"Datos del usuario: {user.__dict__}")
             user.is_staff = False
             user.is_superuser = False
             generated_password = generate_secure_password()  # Genera una contraseña aleatoria
             user.set_password(generated_password)  # Configura la contraseña generada
             user.save()  # Ahora guarda el usuario en la base de datos
-            print(f"Datos del usuario: {user.__dict__}")
             login(request, user)
             print("Usuario guardado en la base de datos")
 
@@ -190,7 +227,6 @@ def solicitar_cuenta(request):
         if form.is_valid():
             cuenta = form.save(commit=False)
 
-            # Asegúrate de que el cliente exista y esté relacionado con el usuario
             cliente, creado = Cliente.objects.get_or_create(persona_id=request.user)
 
             # Asigna el cliente a la cuenta
@@ -204,6 +240,56 @@ def solicitar_cuenta(request):
         form = RegistroCuentasForm()
 
     return render(request, 'registration/registro_cuentas.html', {'form': form})
+
+
+@login_required
+def registrar_contacto(request):
+    if request.method == 'POST':
+        form = RegistroContactoForm(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            nro_cuenta = cleaned_data['nro_cuenta']
+            tipo_documento = cleaned_data['tipo_documento']
+            numero_documento = cleaned_data['numero_documento']
+            email = cleaned_data['email']
+            nombre = cleaned_data['nombre']
+            apellido = cleaned_data['apellido']
+
+            try:
+                persona = Persona.objects.get(
+                    email=email, nombre=nombre, apellido=apellido,
+                    tipo_documento=tipo_documento, numero_documento=numero_documento
+                )
+
+                try:
+                    cliente_propietario = Cliente.objects.get(persona_id=request.user)
+                    cliente_registrado = Cliente.objects.get(persona_id=persona)
+                    cuentas = Cuentas.objects.get(cliente_id=cliente_registrado, nro_cuenta=nro_cuenta)
+                    tipo_cuenta = cuentas.tipo_cuenta
+                    moneda = cuentas.moneda
+                    # Si la cuenta existe y coincide, procede
+                    contacto = form.save(commit=False)
+                    contacto.cliente_propietario = cliente_propietario
+                    contacto.cliente_registrado = cliente_registrado
+                    contacto.tipo_cuenta = tipo_cuenta
+                    contacto.moneda = moneda
+                    contacto.save()
+
+                    return JsonResponse({'success': True})
+                except Cuentas.DoesNotExist:
+                    # Si la cuenta no coincide, muestra un mensaje de error
+                    return JsonResponse({'success': False, 'error': "La cuenta no existe..."})
+
+            except Persona.DoesNotExist:
+                # Si la persona no existe, muestra un mensaje de error
+                return JsonResponse({'success': False, 'error': "La persona no existe..."})
+
+        else:
+            return JsonResponse({'success': False, 'error': "El formulario no es válido"})
+
+    form = RegistroContactoForm()
+
+    return render(request, 'registration/registro_contacto.html', {'form': form})
 
 
 class CiudadViews(viewsets.ModelViewSet):
@@ -237,7 +323,6 @@ class TransferenciasView(APIView):
         nro_cuenta_origen = request.data.get('nro_cuenta_origen')
         nro_cuenta_destino = request.data.get('nro_cuenta_destino')
         monto = request.data.get('monto')
-        # canal = request.data.get('canal')
 
         # Validaciones
         if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
@@ -263,6 +348,20 @@ class TransferenciasView(APIView):
 
         if cuenta_origen.saldo < monto:
             return Response({'error', 'Saldo Insuficiente'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if cuenta_origen.tipo_cuenta == 'Cuenta Corriente' and cuenta_destino.tipo_cuenta == 'Cuenta de Ahorro':
+            return Response({'error': 'La cuenta de destino es de Ahorro, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif cuenta_origen.tipo_cuenta == 'Cuenta de Ahorro' and cuenta_destino.tipo_cuenta == 'Cuenta Corriente':
+            return Response({'error': 'La cuenta de destino es Corriente, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if cuenta_origen.moneda == 'Gs' and cuenta_destino.moneda == 'USD':
+            return Response({'error': 'La cuenta de destino esta en Dolares, no se puede realizar la transferencia'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif cuenta_origen.moneda == 'USD' and cuenta_destino.moneda == 'Gs':
+            return Response({'error': 'La cuenta de destino es Corriente, no se puede realizar la transferencia'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Calcular saldos anteriores y actuales
@@ -317,5 +416,100 @@ class CambiarEstadoCuentaView(APIView):
                             status=status.HTTP_200_OK)
         except Cuentas.DoesNotExist:
             return Response({'error': 'La cuenta no existe'}, status=status.HTTP_404_NOT_FOUND)
-        
 
+
+
+
+class DepositoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        nro_cuenta_origen = request.data.get('nro_cuenta_origen')
+        nro_cuenta_destino = request.data.get('nro_cuenta_destino')
+        monto = request.data.get('monto')
+        # canal = request.data.get('canal')
+
+        # Validaciones
+        if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
+            return Response({'error': 'La solicitud no contiene los datos necesarios'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            monto = Decimal(monto)
+        except InvalidOperation:
+            return Response({'error', 'El monto a depositar es inválido'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
+        cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+
+        if cuenta_destino.estado == 'Bloqueada':
+            return Response({'error': 'La cuenta de destino está bloqueada, no se puede realizar el deposito'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        saldo_anterior_destino = cuenta_destino.saldo
+        saldo_actual_destino = saldo_anterior_destino + monto
+
+        # Realizar el deposito
+        cuenta_destino.saldo = saldo_actual_destino
+        cuenta_destino.save()
+
+        Movimientos.objects.create(cuenta_id=cuenta_destino,
+                                   tipo_movimiento='CRE',
+                                   saldo_anterior=saldo_anterior_destino,
+                                   saldo_actual=saldo_actual_destino,
+                                   monto_movimiento=monto,
+                                   cuenta_origen=nro_cuenta_origen,
+                                   cuenta_destino=nro_cuenta_destino,
+                                   canal='Web')
+
+        return Response({'message': 'Deposito realizado con éxito'},
+                        status=status.HTTP_200_OK)
+
+
+class RetiroView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        nro_cuenta_origen = request.data.get('nro_cuenta_origen')
+        nro_cuenta_destino = request.data.get('nro_cuenta_destino')
+        monto = request.data.get('monto')
+
+        # Validaciones
+        if not all([nro_cuenta_origen, nro_cuenta_destino, monto]):
+            return Response({'error': 'La solicitud no contiene los datos necesarios'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            monto = Decimal(monto)
+        except InvalidOperation:
+            return Response({'error', 'El monto a extraer es inválido'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
+        cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+
+        if cuenta_origen.estado == 'Bloqueada':
+            return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la extracción'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        saldo_anterior_origen = cuenta_origen.saldo
+        saldo_actual_origen = saldo_anterior_origen - monto
+
+        # Realizar la extraccion
+        cuenta_origen.saldo = saldo_actual_origen
+
+        cuenta_origen.save()
+
+        # Registrar el movimiento
+        Movimientos.objects.create(cuenta_id=cuenta_origen,
+                                   tipo_movimiento='DEB',
+                                   saldo_anterior=saldo_anterior_origen,
+                                   saldo_actual=saldo_actual_origen,
+                                   monto_movimiento=monto,
+                                   cuenta_origen=nro_cuenta_origen,
+                                   cuenta_destino=nro_cuenta_destino,
+                                   canal='Web')
+
+        return Response({'message': 'Extracción realizada con éxito'},
+                        status=status.HTTP_200_OK)
