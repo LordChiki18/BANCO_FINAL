@@ -144,7 +144,6 @@ def datos_page(request):
     return render(request, 'clients/datos.html', context)
 
 
-@login_required
 def nav_cuentas(request):
     return render(request, 'pages/cuentas_desc.html')
 
