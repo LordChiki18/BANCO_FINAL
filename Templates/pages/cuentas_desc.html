@@ -1,72 +1,40 @@
-{% load static %}
-
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
-    <link rel="icon" href="{% static 'main/media/favicon.ico' %}" type="image/x-icon">
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
-    />
-    <script src="{% static 'js/script.js' %}"></script>
-    <title>Banco DOCAP</title>
-  </head>
-  <body>
-    <header>
-      <nav class="sectionh__container navh__container">
-        <div class="nav__logo" onclick="redirigirAInicio()"><img src="{% static 'main/media/logo.png' %}" alt="Logo"></div>
-        <div class="nav__logo" onclick="redirigirAInicio()">Banco DOCAP</div>
-        <ul class="nav__links">
-          <li class="link">
-            <li class="link"><a href="{% url 'cuentas_desc' %}">Cuentas</a></li>
-            <li class="link"><a href="{% url 'about_desc' %}">Sobre Nosotros</a></li>
-            <li class="link"><a href="{% url 'contact_desc' %}">Contacto</a></li>
-        </ul>
-        <a href={% url 'iniciar_sesion' %}>
-          <button class="btncli">Online Banking</button>
-        <a/>
-        <a href={% url 'registro' %}>
-          <button class="btn">Quiero ser Cliente</button>
-        </a>
-      </nav>
-      <div class="section__container header__container">
+{% extends 'base2.html' %}
+{% block content %}
+    <div class="section__container header__container">
         <div class="header__content">
-          <h1>Por que tener una cuenta en nuestro banco</h1>
-          <p>Contar con una cuenta en un banco ofrece una serie de ventajas que pueden simplificar tu vida financiera y brindarte seguridad. Algunas de las ventajas clave incluyen:</p>
+            <h1>Por que tener una cuenta en nuestro banco</h1>
+            <p>Contar con una cuenta en un banco ofrece una serie de ventajas que pueden simplificar tu vida financiera
+                y brindarte seguridad. Algunas de las ventajas clave incluyen:</p>
 
-          <p>1. Seguridad: Tu dinero está protegido en una cuenta bancaria, lo que reduce el riesgo de pérdida o robo en comparación con tener efectivo en casa.</p>
+            <p>1. Seguridad: Tu dinero está protegido en una cuenta bancaria, lo que reduce el riesgo de pérdida o robo
+                en comparación con tener efectivo en casa.</p>
 
-          <p>2. Acceso a servicios financieros: Una cuenta bancaria te brinda acceso a una amplia gama de servicios, como tarjetas de débito/crédito, transferencias electrónicas y banca en línea, que facilitan la administración de tus finanzas.</p>
+            <p>2. Acceso a servicios financieros: Una cuenta bancaria te brinda acceso a una amplia gama de servicios,
+                como tarjetas de débito/crédito, transferencias electrónicas y banca en línea, que facilitan la
+                administración de tus finanzas.</p>
 
-          <p>3. Ahorro: Puedes ahorrar dinero de manera efectiva al depositarlo en una cuenta de ahorros o un certificado de depósito (CD) y ganar intereses.</p>
+            <p>3. Ahorro: Puedes ahorrar dinero de manera efectiva al depositarlo en una cuenta de ahorros o un
+                certificado de depósito (CD) y ganar intereses.</p>
 
-          <p>4. Pagos más seguros: Las transacciones electrónicas y los cheques son formas más seguras de realizar pagos en comparación con el efectivo, ya que dejan un rastro y son más fáciles de rastrear.</p>
+            <p>4. Pagos más seguros: Las transacciones electrónicas y los cheques son formas más seguras de realizar
+                pagos en comparación con el efectivo, ya que dejan un rastro y son más fáciles de rastrear.</p>
 
-          <p>5. Construcción de crédito: Tener una cuenta bancaria sólida es un primer paso para establecer un historial crediticio, lo que puede ser útil para solicitar préstamos en el futuro.</p>
+            <p>5. Construcción de crédito: Tener una cuenta bancaria sólida es un primer paso para establecer un
+                historial crediticio, lo que puede ser útil para solicitar préstamos en el futuro.</p>
 
-          <p>6. Conveniencia: Puedes acceder a tus fondos en cualquier momento a través de cajeros automáticos y servicios en línea, lo que hace que las operaciones bancarias sean convenientes y eficientes.</p>
+            <p>6. Conveniencia: Puedes acceder a tus fondos en cualquier momento a través de cajeros automáticos y
+                servicios en línea, lo que hace que las operaciones bancarias sean convenientes y eficientes.</p>
 
-          <p>7. Protección contra la inflación: El dinero en una cuenta bancaria puede mantener su valor a lo largo del tiempo, mientras que el efectivo tiende a perder valor debido a la inflación.</p>
+            <p>7. Protección contra la inflación: El dinero en una cuenta bancaria puede mantener su valor a lo largo
+                del tiempo, mientras que el efectivo tiende a perder valor debido a la inflación.</p>
 
-          <p>8. Asesoramiento financiero: Muchos bancos ofrecen servicios de asesoramiento financiero y planificación, lo que puede ayudarte a alcanzar tus metas financieras a largo plazo.</p>
+            <p>8. Asesoramiento financiero: Muchos bancos ofrecen servicios de asesoramiento financiero y planificación,
+                lo que puede ayudarte a alcanzar tus metas financieras a largo plazo.</p>
 
-          <p>En resumen, contar con una cuenta en un banco proporciona seguridad, conveniencia y acceso a una amplia gama de servicios financieros que pueden mejorar la administración de tus finanzas y ayudarte a alcanzar tus objetivos económicos.</p>
+            <p>En resumen, contar con una cuenta en un banco proporciona seguridad, conveniencia y acceso a una amplia
+                gama de servicios financieros que pueden mejorar la administración de tus finanzas y ayudarte a alcanzar
+                tus objetivos económicos.</p>
         </div>
-      </div>
-    </header>
-    <footer class="footer">
-      <div class="footer__bar">
-        <div class="footer__bar__content">
-          <h3 style="color: white;">Contigo en todo momento</h3>
-          <div class="footer__socials">
-            <a href="{% url 'contact_desc' %}">Contacto</a>
-            <a href="{% url 'politicas_desc' %}">Politica</a>
-            <a href="{% url 'terminos_desc' %}">Terminos</a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </body>
-</html>
+    </div>
+
+{% endblock content %}
