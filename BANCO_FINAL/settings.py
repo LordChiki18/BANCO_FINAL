@@ -124,7 +124,7 @@ DATABASES = {
         'NAME': 'gestion_bancaria',
         'USER': 'superbanco',
         'PASSWORD': '#@yd1_423/*',
-        'HOST': 'postgres-db',  # Utiliza el nombre del servicio del contenedor PostgreSQL
+        'HOST': 'localhost',  # Utiliza el nombre del servicio del contenedor PostgreSQL
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
 }

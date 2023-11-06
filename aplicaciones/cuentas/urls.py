@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from aplicaciones.cuentas import views
 from aplicaciones.cuentas.views import CiudadViews, PersonaViews, ClienteViews, CuentasViews, index, iniciar_sesion, \
-    cuentas_page, TransferenciasViews, CambiarEstadoCuentaViews, DepositoViews, RetiroView, MovimientosViews
+    cuentas_page, TransferenciasViews, CambiarEstadoCuentaViews, DepositoViews, RetiroView, MovimientosViews, \
+    PersonaUpdateView
 
 router = DefaultRouter()
 
@@ -20,8 +21,6 @@ urlpatterns = [
     path('registro/', views.registro_usuario, name='registro'),
     path('solicitar-cuenta/', views.solicitar_cuenta, name='solicitar_cuenta'),
     path('home/cuentas/', views.nav_cuentas, name='cuentas_desc'),
-    path('home/tarjetas/', views.nav_tarjetas, name='tarjetas_desc'),
-    path('home/creditos/', views.nav_creditos, name='creditos_desc'),
     path('home/about/', views.nav_about, name='about_desc'),
     path('home/contacto/', views.nav_contact, name='contact_desc'),
     path('home/politicas/', views.foo_policitas, name='politicas_desc'),
@@ -38,6 +37,6 @@ urlpatterns = [
     path('finanzas/transferencias', TransferenciasViews.as_view(), name='realizar-transferencia'),
     path('cambiar-estado-cuenta/', CambiarEstadoCuentaViews.as_view(), name='cambiar_estado'),
     path('finanzas/deposito', DepositoViews.as_view(), name='realizar-deposito'),
-    path('finanzas/extraccion', RetiroView.as_view(), name="realizar-retiro"),
-
+    path('finanzas/extraccion', RetiroView.as_view(), name='realizar-retiro'),
+    path('cuenta/update', PersonaUpdateView.as_view(), name='actualizar-persona')
 ]

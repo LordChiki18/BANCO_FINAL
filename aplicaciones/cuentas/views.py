@@ -3,12 +3,14 @@ from decimal import InvalidOperation, Decimal
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.views.generic import UpdateView
 from rest_framework import viewsets, status, generics, permissions
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from aplicaciones.cuentas.serializers import (CiudadSerializer, PersonaSerializer, ClienteSerializer,
-                                              CuentasSerializer, MovimientosSerializer)
+                                              CuentasSerializer, MovimientosSerializer, PersonaUpdateSerializer)
 from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos, RelacionCliente
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
@@ -135,22 +137,16 @@ def movimientos_page(request):
 
 @login_required
 def datos_page(request):
-    return render(request, 'clients/datos.html')
+    persona = Persona.objects.get(custom_username=request.user)
+    context = {
+        'persona': persona
+    }
+    return render(request, 'clients/datos.html', context)
 
 
 @login_required
 def nav_cuentas(request):
     return render(request, 'pages/cuentas_desc.html')
-
-
-@login_required
-def nav_tarjetas(request):
-    return render(request, 'pages/tarjetas_desc.html')
-
-
-@login_required
-def nav_creditos(request):
-    return render(request, 'pages/creditos_desc.html')
 
 
 def nav_about(request):
@@ -355,6 +351,22 @@ class MovimientosViews(viewsets.ReadOnlyModelViewSet):
         'cuenta_id': ['exact'],
     }
     ordering_fields = ['fecha_movimiento', 'monto_movimiento']
+
+
+class PersonaUpdateView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PersonaUpdateSerializer
+
+    def get_object(self):
+        # Recupera la persona asociada al usuario autenticado
+        return Persona.objects.get(custom_username=self.request.user)
+
+    def perform_update(self, serializer):
+        # Realiza la actualización de la persona
+        serializer.save()
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
 
 class TransferenciasViews(APIView):
