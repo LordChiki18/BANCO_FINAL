@@ -37,3 +37,10 @@ class MovimientosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimientos
         fields = '__all__'
+
+
+class PersonaUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Persona
+        fields = ['email', 'ciudad_id', 'nombre', 'apellido', 'direccion',
+                  'celular']

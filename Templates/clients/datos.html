@@ -1,149 +1,73 @@
-{% load static %}
+{% extends 'base.html' %}
 
-<span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
-  <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles_dashboard.css' %}">
-    <link rel="icon" href="{% static 'main/media/favicon.ico' %}" type="image/x-icon">
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
-    />
-    <title>Banco DOCAP</title>
-    <!-- Font Awesome Cdn Link -->
-    <script src="https://kit.fontawesome.com/818ed1e0c5.js" crossorigin="anonymous"></script>
-    <script src="{% static 'js/script.js' %}"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
-  </head>
-  <body>
-    <div class="container">
-      <nav>
-        <ul>
-          <li><a href="{% url 'cuentas_page' %}" class="logo">
-            <img src="{% static 'main/media/logo.png' %}" alt="Logo">
-            <span class="nav-item">Doca Banco</span>
-          </a></li>
-          <li><a href="{% url 'cuentas_page' %}">
-            <i class="fas fa-wallet"></i>
-            <span class="nav-item">Mis Cuentas</span>
-          </a></li>
-          <li><a href="{% url 'transferencias_page' %}">
-            <i class="fas fa-money-bill-transfer"></i>
-            <span class="nav-item">Transferencias</span>
-          </a></li>
-          <li><a href="{% url 'movimientos_page' %}">
-            <i class="fas fa-money-bill-trend-up"></i>
-            <span class="nav-item">Movimientos</span>
-          </a></li>
-          <li><a href="{% url 'datos_page' %}">
-            <i class="fas fa-user"></i>
-            <span class="nav-item">Mis datos</span>
-          </a></li>
-          <li><a href="" class="logout">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="nav-item">Cerrar Sesion</span>
-          </a></li>
-        </ul>
-      </nav>
-     <section class="main">
+{% block content %}
+    <section class="main">
         <div class="main-top">
-          <h1>  Mis Datos</h1>
+            <h1>Actualizar Cuenta</h1>
         </div>
-        <div class="users">
-          <div class="card_main">
-            <!--<img src="{% static 'main/media/logo.jpeg' %}">-->
-            <br>
-            <h4>
-              Hola Juan Torres!</h4>
-            <p>Como puede tu banco ayudarte hoy?</p>
-          </div>
-        <div class="main-skills">
-          <div class="card">
-            <i class="fas fa-money-check-dollar"></i>
-            <h3>Cuenta Corriente</h3>
-            <p>Nro.: 95939050</p>
-            <h3 id="amountCtte">7.000.000 Gs.</h3>
-            <button id="hideAmountCtte" onclick="ocultarMontoCtte()">Ocultar monto</button>
-          </div>
-          <div class="card">
-            <i class="fas fa-vault"></i>
-            <h3>Caja de Ahorro</h3>
-            <p>Nro.: 40550343</p>
-            <h3 id="amountCaja">12.500.000 Gs.</h3>
-            <button id="hideAmountCaja" onclick="ocultarMontoCaja()">Ocultar monto</button>
-          </div>
-         <div class="course-box">
-             <!-- <ul>
-                <li class="active">Tarjeta de Debito</li>
-                <li>Pendientes</li>
-                <li>Canceladas</li>
-              </ul>-->
-              <div class="course">
-                <div class="box">
-                  <h3>Tarjeta de Debito - MasterCard</h3>
-                  <p>**** 0136</p>
-                  <button>Ver Datos Completos</button>
-                  <i class="fa-brands fa-cc-mastercard"></i>
+        <div class="main">
+            <div class="main-skills">
+                <div class="card">
+                    <h1>Actualizar Cuenta</h1>
+                    <form id="update-form">
+                        {% csrf_token %}
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="{{ persona.email }}" required><br>
+
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" value="{{ persona.nombre }}" required><br>
+
+                        <label for="apellido">Apellido:</label>
+                        <input type="text" id="apellido" name="apellido" value="{{ persona.apellido }}" required><br>
+
+                        <label for="direccion">Direccion:</label>
+                        <input type="text" id="direccion" name="direccion" value="{{ persona.direccion }}" required><br>
+
+                        <label for "celular">Celular:</label>
+                        <input type="text" id="celular" name="celular" value="{{ persona.celular }}" required><br>
+
+                        <button type="submit">Actualizar Cuenta</button>
+                    </form>
+
+                    <div id="message"></div>
                 </div>
-              </div>
             </div>
         </div>
-       
+    </section>
 
-        <div class="history_lists">
-          <div class="list1">
-            <div class="row">
-              <h4>Historial de Movimientos en Cuentas</h4>
-                <select id="selectAccount">
-                    <option value="cuenta0"> Seleccionar...</option>
-                    <option value="cuenta1">Cuenta Corriente</option>
-                    <option value="cuenta2">Caja de Ahorro</option>
-                </select>
-              <a href="#">Descargar extracto</a>
-              <a href="#">Ver todos</a>
-            </div>
-          <table>
-            <thead>
-              <tr>
-                <th>#Nro</th>
-                <th>Fecha</th>
-                <th>Comprobante</th>
-                <th>Detalle</th>
-                <th>Tipo</th>
-                <th>Debito</th>
-                <th>Credito</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>17382</td>
-                <td>12, Oct, 2023</td>
-                <td>48930020</td>
-                <td>Pedidos ya</td>
-                <td>Transaccion Tarjeta</td>
-                <td>-43.000 Gs.</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>17383</td>
-                <td>11, Oct, 2023</td>
-                <td>193023940</td>
-                <td>Transf. recibida</td>
-                <td>Transferencia SIPAP</td>
-                <td></td>
-                <td>450.000 Gs.</td>
-              </tr>
-            </tbody>
-          </table>
-          </div>
-        </div>
-      </div>
-      </section>
-    </div>
-  </body>
-  </html></span>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("update-form").addEventListener("submit", function (event) {
+                event.preventDefault();
+                var email = document.getElementById("email").value;
+                var nombre = document.getElementById("nombre").value;
+                var apellido = document.getElementById("apellido").value;
+                var direccion = document.getElementById("direccion").value;
+                var celular = document.getElementById("celular").value;
+                var csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 
-
-
+                fetch("{% url 'actualizar-persona' %}", {
+                    method: "PUT", // O utiliza "PUT" si está configurado en Django
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken,
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        nombre: nombre,
+                        apellido: apellido,
+                        direccion: direccion,
+                        celular: celular,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("message").textContent = "Cuenta actualizada exitosamente";
+                })
+                .catch(error => {
+                    document.getElementById("message").textContent = "Error al actualizar la cuenta: " + error.message;
+                });
+            });
+        });
+    </script>
+{% endblock content %}
