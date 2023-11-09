@@ -1,6 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from .models import Ciudad, Persona, Cuentas, RelacionCliente
+from aplicaciones.cliente.models import Ciudad, Persona
 
 
 class RegistroForm(forms.ModelForm):
@@ -25,21 +24,3 @@ class RegistroForm(forms.ModelForm):
         model = Persona
         fields = (
             'ciudad_id', 'nombre', 'apellido', 'tipo_documento', 'numero_documento', 'direccion', 'celular', 'email')
-
-
-class RegistroCuentasForm(forms.ModelForm):
-    class Meta:
-        model = Cuentas
-        fields = (
-            'tipo_cuenta', 'moneda', 'saldo'
-        )
-
-
-class RegistroContactoForm(forms.ModelForm):
-    # para crear formularios usas la class meta
-
-    class Meta:
-        model = RelacionCliente
-        fields = (
-            'nro_cuenta', 'email', 'nombre', 'apellido', 'tipo_documento', 'numero_documento',
-        )

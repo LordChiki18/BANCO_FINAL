@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from aplicaciones.cuentas.models import Ciudad, Persona, Cliente, Cuentas, Movimientos
+from aplicaciones.cliente.models import Ciudad, Persona, Cliente, Cuentas, Movimientos
 
 
 class CiudadSerializer(serializers.ModelSerializer):

@@ -24,7 +24,8 @@
                         <select id="nro_cuenta_destino" name="nro_cuenta_destino">
                             <option value="">Selecciona una cuenta de destino</option>
                             {% for lista in relacion %}
-                                <option value="{{ lista.nro_cuenta }}">{{ lista.nro_cuenta }} {{ lista.nombre }} {{ lista.apellido }} {{ lista.moneda }} {{ lista.tipo_cuenta }}</option>
+                                <option value="{{ lista.nro_cuenta }}">{{ lista.nro_cuenta }}
+                                    - {{ lista.nombre }} {{ lista.apellido }} {{ lista.tipo_cuenta }} {{ lista.moneda }}</option>
                             {% endfor %}
                         </select>
                         <br>
@@ -58,6 +59,7 @@
                                             $('#transferencia-form').trigger('reset');
                                         },
                                         error: function (xhr, textStatus, errorThrown) {
+                                            console.log(xhr);  // Agrega esta línea para ver detalles del error en la consola
                                             if (xhr.status === 400) {
                                                 var errorData = JSON.parse(xhr.responseText);
                                                 alert('Error al realizar la transferencia: ' + errorData.error);
