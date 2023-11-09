@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-j7s%l7&ubdmql98ir%!1e)hc!r27j+i=ft)m#)a*)=x89so$af
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = []  # '127.0.0.1', 'localhost', 'postgres-db'
 
 login_redirect_url = ''
 logout_redirect_url = ''
@@ -30,6 +30,9 @@ INSTALLED_APPS = [
     'django_filters',
     # MY APPS
     'aplicaciones.cuentas',
+    'aplicaciones.cliente',
+    'aplicaciones.api',
+    'aplicaciones.front',
     # THIRD PARTY APPS
     'rest_framework',
     'rest_framework_simplejwt',
@@ -124,12 +127,12 @@ DATABASES = {
         'NAME': 'gestion_bancaria',
         'USER': 'superbanco',
         'PASSWORD': '#@yd1_423/*',
-        'HOST': 'localhost',  # Utiliza el nombre del servicio del contenedor PostgreSQL
+        'HOST': 'localhost',  # postgres-db Utiliza el nombre del servicio del contenedor PostgreSQL
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
 }
 
-AUTH_USER_MODEL = 'cuentas.Persona'
+AUTH_USER_MODEL = 'cliente.Persona'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -167,7 +170,7 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-    "/var/www/static/",
+    # "/var/www/static/",
 ]
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
