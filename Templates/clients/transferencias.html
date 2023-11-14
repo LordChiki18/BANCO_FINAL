@@ -11,7 +11,7 @@
                     <h1>Realizar Transferencia</h1>
                     <form id="transferencia-form" method="post" action="{% url 'realizar-transferencia' %}">
                         {% csrf_token %}
-                        <label for="nro_cuenta_origen">Número de Cuenta de Origen:</label>
+                        <label for="nro_cuenta_origen">Cuenta Origen:</label>
                         <select id="nro_cuenta_origen" name="nro_cuenta_origen">
                             <option value="">Selecciona una cuenta de Origen</option>
                             {% for cuenta in cuenta %}
@@ -20,7 +20,7 @@
                             {% endfor %}
                         </select>
                         <br>
-                        <label for="nro_cuenta_destino">Número de Cuenta de Destino:</label>
+                        <label for="nro_cuenta_destino">Cuenta Destino:</label>
                         <select id="nro_cuenta_destino" name="nro_cuenta_destino">
                             <option value="">Selecciona una cuenta de destino</option>
                             {% for lista in relacion %}
@@ -29,9 +29,11 @@
                             {% endfor %}
                         </select>
                         <br>
-                        <label for="monto">Monto a Transferir:</label>
+                        <label for="monto">Monto:</label>
                         <input type="text" id="monto" name="monto">
-                        <input type="submit" value="Realizar Transferencia">
+                        <br>
+                        <br>
+                        <input class="btns" type="submit" value="Realizar Transferencia">
                     </form>
                     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                     <script>
