@@ -63,3 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
   botonMostrar.addEventListener("click", mostrarFechas);
 });
 
+$(document).ready(function() {
+  $("select[name='tipo_cuenta']").prepend('<option value="" disabled selected>Seleccione el tipo de cuenta</option>');
+  $("select[name='moneda']").prepend('<option value="" disabled selected>Seleccione la moneda</option>');
+});
