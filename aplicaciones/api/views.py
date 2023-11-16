@@ -81,8 +81,17 @@ class TransferenciasViews(APIView):
             return Response({'error': 'El monto a transferir es inválido'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
-        cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+        try:
+            cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
+        except Cuentas.DoesNotExist:
+            return Response({'error': 'Cuenta de origen no existe'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+        except Cuentas.DoesNotExist:
+            return Response({'error': 'Cuenta de destino no existe'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if cuenta_origen.estado == 'Bloqueada':
             return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la transferencia'},
@@ -187,7 +196,11 @@ class DepositoViews(APIView):
         if monto <= 0:
             return Response({'error': 'Monto Invalido'}, status=status.HTTP_400_BAD_REQUEST)
 
-        cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+        try:
+            cuenta_destino = Cuentas.objects.get(nro_cuenta=nro_cuenta_destino)
+        except Cuentas.DoesNotExist:
+            return Response({'error': 'Cuenta de destino no existe'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if cuenta_destino.estado == 'Bloqueada':
             return Response({'error': 'La cuenta de destino está bloqueada, no se puede realizar el deposito'},
@@ -234,7 +247,11 @@ class RetiroView(APIView):
         if monto <= 0:
             return Response({'error': 'Monto Invalido'}, status=status.HTTP_400_BAD_REQUEST)
 
-        cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
+        try:
+            cuenta_origen = Cuentas.objects.get(nro_cuenta=nro_cuenta_origen)
+        except Cuentas.DoesNotExist:
+            return Response({'error': 'Cuenta de origen no existe'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if cuenta_origen.estado == 'Bloqueada':
             return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la extracción'},

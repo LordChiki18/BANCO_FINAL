@@ -11,7 +11,7 @@ COPY requirements.txt /BANCO_FINAL/
 RUN pip install -r requirements.txt
 
 # Copy the current directory contents into the container
-COPY . /BANCO_FINAL/
+COPY . .
 
 # Expose the port that your Django application will run on (not necessary for connecting to the database)
 EXPOSE 8000

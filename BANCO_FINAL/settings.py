@@ -12,9 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j7s%l7&ubdmql98ir%!1e)hc!r27j+i=ft)m#)a*)=x89so$af'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []  # '127.0.0.1', 'localhost', 'postgres-db'
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'postgres-db', '/static/', '/media/']
 
 login_redirect_url = ''
 logout_redirect_url = ''
@@ -127,7 +127,7 @@ DATABASES = {
         'NAME': 'gestion_bancaria',
         'USER': 'superbanco',
         'PASSWORD': '#@yd1_423/*',
-        'HOST': 'localhost',  # postgres-db Utiliza el nombre del servicio del contenedor PostgreSQL
+        'HOST': 'postgres-db',  # Utiliza el nombre del servicio del contenedor PostgreSQL localhost
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
 }
@@ -166,7 +166,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -179,7 +179,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'proyectodocap@gmail.com'
 EMAIL_HOST_PASSWORD = 'abbr bbnw pifl tksx'
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
