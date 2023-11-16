@@ -93,6 +93,10 @@ class TransferenciasViews(APIView):
             return Response({'error': 'Cuenta de destino no existe'},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        if cuenta_destino == cuenta_origen:
+            return Response({'error': 'La cuenta de destino no puedes ser igual a la de origen'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         if cuenta_origen.estado == 'Bloqueada':
             return Response({'error': 'La cuenta de origen está bloqueada, no se puede realizar la transferencia'},
                             status=status.HTTP_400_BAD_REQUEST)
