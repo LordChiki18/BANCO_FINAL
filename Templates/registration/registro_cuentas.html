@@ -26,6 +26,21 @@
                             {{ form.saldo }}
                         </div>
                         <br>
+
+                        {% if form.errors %}
+                            <div class="form-errors">
+                                <p>Error(es) en el formulario:</p>
+                                <ul>
+                                    {% for field, errors in form.errors.items %}
+                                        {% if field == 'saldo' %}
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
                         <button class="btn form__btn" type="submit">Solicitar</button>
                     </form>
                 </div>

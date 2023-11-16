@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from aplicaciones.cliente.models import Ciudad, Persona, Cliente, Cuentas, Movimientos
@@ -14,6 +15,11 @@ class PersonaSerializer(serializers.ModelSerializer):
         model = Persona
         fields = '__all__'
 
+    def create(self, validated_data):
+        # Hashea la contraseña antes de guardarla
+        validated_data['password'] = make_password(validated_data.get('password'))
+        return super().create(validated_data)
+
 
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,6 +31,11 @@ class CuentasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cuentas
         fields = '__all__'
+
+    def validate_saldo(self, value):
+        if value < 0:
+            raise serializers.ValidationError("El saldo no puede ser negativo.")
+        return value
 
 
 class MovimientosSerializer(serializers.ModelSerializer):

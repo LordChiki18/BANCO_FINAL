@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j7s%l7&ubdmql98ir%!1e)hc!r27j+i=ft)m#)a*)=x89so$af'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'postgres-db', '/static/', '/media/']
 
@@ -127,7 +127,7 @@ DATABASES = {
         'NAME': 'gestion_bancaria',
         'USER': 'superbanco',
         'PASSWORD': '#@yd1_423/*',
-        'HOST': 'postgres-db',  # Utiliza el nombre del servicio del contenedor PostgreSQL localhost
+        'HOST': 'localhost',  # Utiliza el nombre del servicio del contenedor PostgreSQL localhost
         'PORT': '',  # Deja en blanco para usar el puerto predeterminado
     }
 }

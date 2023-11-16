@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from aplicaciones.cliente.forms import RegistroContactoForm, RegistroCuentasForm
 from aplicaciones.cliente.models import Persona, Cliente, Cuentas, RelacionCliente, Movimientos
@@ -128,6 +128,10 @@ def solicitar_cuenta(request):
     if request.method == 'POST':
         form = RegistroCuentasForm(request.POST)
         if form.is_valid():
+            saldo = form.cleaned_data['saldo']
+            if saldo < 0:
+                return HttpResponse("El saldo no puede ser negativo.")
+
             cuenta = form.save(commit=False)
 
             cliente, creado = Cliente.objects.get_or_create(persona_id=request.user)

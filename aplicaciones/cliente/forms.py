@@ -9,6 +9,12 @@ class RegistroCuentasForm(forms.ModelForm):
             'tipo_cuenta', 'moneda', 'saldo'
         )
 
+    def clean_saldo(self):
+        saldo = self.cleaned_data['saldo']
+        if saldo < 0:
+            raise forms.ValidationError("El saldo no puede ser negativo.")
+        return saldo
+
 
 class RegistroContactoForm(forms.ModelForm):
     # para crear formularios usas la class meta
